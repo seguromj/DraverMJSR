@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -14,7 +15,10 @@
                 --gray: #f8f9fa;
                 --danger: #ff4d4d;
                 --success: #27ae60; 
+                --Laranja: #F54927;
                 --shadow: 0 4px 15px rgba(0,0,0,0.1); }
+                
+        
         
     
          body { font-family: 'Segoe UI', sans-serif; margin: 0; background-color: var(--gray); color: var(--dark); }
@@ -94,14 +98,17 @@
         .carousel-container::-webkit-scrollbar { display: none; }
 
         .product-card { background: white; min-width: 250px; border-radius: 15px; padding: 15px; box-shadow: var(--shadow); flex-shrink: 0; text-align: center; pointer-events: auto;}
-        .product-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 10px; pointer-events: none; }
+        .product-card img { width: 200px; height: 180px; object-fit: cover; border-radius: 20px; pointer-events: none; }
+        .product-card h3 { color: var(--Laranja);}
         
         /* PREÇOS */
         .price { color: var(--success); font-weight: bold; font-size: 1.2em; display: flex; justify-content: center; align-items: center; gap: 8px; margin: 10px 0; }
         .old-price { color: #999; text-decoration: line-through; font-size: 0.8em; font-weight: normal; }
         .badge-ml { background: #eee; color: #555; padding: 2px 6px; border-radius: 5px; font-size: 0.5em; text-transform: uppercase; vertical-align: middle; }
-
-        .btn-main, .btn-add { background: var(--primary); border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .badge-ml { background: #eee; color: #555; padding: 2px 6px; border-radius: 5px; font-size: 0.5em; text-transform: uppercase; vertical-align: middle; }
+       
+        
+        .btn-main, .btn-add { background: var(--primary); border: none; width: 180px; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .btn-flavor { background: var(--verde); color: var(--primary); }
     
     
@@ -244,106 +251,204 @@
     <div id="menu-sections">
         <div class="menu-section" data-category="alcool">
             <h2>Drinks com Álcool</h2>
+                
             <div class="carousel-container drag-scroll">
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300">
-                    <h3>Gin Especial</h3>
-                        <span class="old-price">R$ 30.00</span> 
-                        <span class="price">R$ 25.00 
+                    <img src="https://www.receiteria.com.br/wp-content/uploads/receitas-de-caipifruta.png">
+                    <h3>CaipFrutas</h3>
+                        <span class="old-price">R$ 12.00</span> 
+                        <span class="price">R$ 10.00 
                         <span class="badge-ml">350ml</span>
                         </span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Gin Especial', 25.00, ['Tradicional', '🍓 Morango 🍓', 'Tropical', 'Melancia'], 'https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=300')">Escolher Sabor</button>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('CaipFrutas', 10.00, ['🍋‍🟩 Limão 🍋‍🟩', '🍓 Morango 🍓', '🥂 Maracujá 🥂', '🥭 Manga 🥭'], 'https://www.receiteria.com.br/wp-content/uploads/receitas-de-caipifruta.png')">Escolher Sabor</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300">
-                    <h3>Caipirinha VIP</h3>
-                        <span class="old-price">R$ 25.00</span> 
+                    <img src="https://blog.bebidasfamosas.com.br/wp-content/uploads/2024/01/l-intro-1659025591.jpeg">
+                    <h3>GIN's</h3>
+                        <span class="old-price">R$ 22.99</span> 
                         <span class="price">R$ 20.00
                         <span class="badge-ml">350ml</span>
                         </span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Caipirinha VIP', 20.00, ['Limão', 'Morango', 'Kiwi', 'Abacaxi'], 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=300')">Escolher Fruta</button>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('GIN`s', 20.00, ['Gin Tropical', 'Gin Tônica', 'Gin Red-Fruts'], 'https://blog.bebidasfamosas.com.br/wp-content/uploads/2024/01/l-intro-1659025591.jpeg')">Escolher Fruta</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1536935338788-846bb9981813?w=300">
-                    <h3>Mojito Fusion</h3>
-                        <span class="old-price">R$ 35.00</span> 
-                        <span class="price">R$ 22.00
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuhMhHjZ5u-mw_K_TJay2oPI11cqrs5IK1mi4w46_OEIOkOGaQ541cGHSv&s=10">
+                    <h3>Mojito</h3>
+                        <span class="old-price">R$ 16.99</span> 
+                        <span class="price">R$ 15.00
                         <span class="badge-ml">350ml</span>
                         </span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Mojito Fusion', 22.00, ['Menta', 'Morango', 'Amora', 'Classic'], 'https://images.unsplash.com/photo-1536935338788-846bb9981813?w=300')">Escolher Sabor</button>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Mojito', 15.00, ['🍋‍🟩 Limão 🍋‍🟩', '🍓 Morango 🍓', '🥂 Maracujá 🥂', '🥭 Manga 🥭'], 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSuhMhHjZ5u-mw_K_TJay2oPI11cqrs5IK1mi4w46_OEIOkOGaQ541cGHSv&s=10')">Escolher Sabor</button>
+                </div>
+                    
+                <div class="product-card">
+                    <img src="https://blog.experimentebegin.com.br/wp-content/uploads/2024/07/BP-Aprenda-como-preparar-o-moscow-mule-Thumb.png">
+                    <h3>Moscow Mule</h3>
+                        <span class="old-price">R$ 22.99</span> 
+                        <span class="price">R$ 20.00
+                        <span class="badge-ml">350ml</span>
+                        </span>
+                    <button class="btn-add" onclick="addToCart('Moscow Mule', 20.00, 'https://blog.experimentebegin.com.br/wp-content/uploads/2024/07/BP-Aprenda-como-preparar-o-moscow-mule-Thumb.png')">Adicionar</button>
                 </div>
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1541301623028-99b262a80613?w=300">
-                    <h3>Cerveja Long Neck</h3><span class="price">R$ 12.00</span>
-                    <button class="btn-add" onclick="addToCart('Cerveja Long Neck', 12.00, 'https://images.unsplash.com/photo-1541301623028-99b262a80613?w=300')">Adicionar</button>
+                    <img src="https://corporategifthamperco.com.au/cdn/shop/files/jackdanielswhiskyproductpic.png">
+                    <h3>Jack Limoned</h3>
+                        <span class="old-price">R$ 27.99</span> 
+                        <span class="price">R$ 25.00
+                        <span class="badge-ml">350ml</span>
+                        </span>
+                    <button class="btn-add" onclick="addToCart('Jack Limoned', 25.00, 'https://corporategifthamperco.com.au/cdn/shop/files/jackdanielswhiskyproductpic.png')">Adicionar</button>
                 </div>
+                
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=300">
-                    <h3>Martini Clássico</h3><span class="price">R$ 28.00</span>
-                    <button class="btn-add" onclick="addToCart('Martini Clássico', 28.00, 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=300')">Adicionar</button>
+                    <img src="https://queroserbartender.com.br/wp-content/uploads/2021/10/Foto-sites-1-1.png">
+                    <h3>Joge Amado</h3>
+                        <span class="old-price">R$ 19.99</span> 
+                        <span class="price">R$ 18.00
+                        <span class="badge-ml">350ml</span>
+                        </span>
+                    <button class="btn-add" onclick="addToCart('Joge Amado', 18.00, 'https://queroserbartender.com.br/wp-content/uploads/2021/10/Foto-sites-1-1.png')">Adicionar</button>
                 </div>
+                    
+                <div class="product-card">
+                    <img src="https://www.absolutdrinks.com/wp-content/uploads/recipe_pina-colada_1x1_97b8eb34b953ca7f9ccab6f97723f848.jpg">
+                    <h3>Pina Colada</h3>
+                        <span class="old-price">R$ 21.99</span> 
+                        <span class="price">R$ 20.00
+                        <span class="badge-ml">350ml</span>
+                        </span>
+                    <button class="btn-add" onclick="addToCart('Pina Colada', 20.00, 'https://www.absolutdrinks.com/wp-content/uploads/recipe_pina-colada_1x1_97b8eb34b953ca7f9ccab6f97723f848.jpg')">Adicionar</button>
+                </div>
+                
+                
             </div>
         </div>
-
+            
+<!--=========================-->
+            
         <div class="menu-section" data-category="sem-alcool">
             <h2>Drinks sem Álcool</h2>
+                
             <div class="carousel-container drag-scroll">
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1543648964-1402c5553d65?w=300">
-                    <h3>Soda Italiana</h3><span class="price">R$ 15.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Soda Italiana', 15.00, ['Maçã Verde', 'Cereja', 'Pêssego', 'Curaçau'], 'https://images.unsplash.com/photo-1543648964-1402c5553d65?w=300')">Escolher Sabor</button>
+                    <img src="https://i.pinimg.com/736x/3e/a8/c9/3ea8c9ce3911dff7a88cb8539cd8408c.jpg">
+                    <h3>Soda Italiana</h3>
+                     <span class="old-price">R$ 8,00</span> 
+                     <span class="price">R$ 8,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Soda Italiana', 8.00, ['🍋‍🟩 Limão Siciliano 🍋‍🟩', '🍎🍓 Red Frits 🍓🍎', '🥂 Maracujá 🥂', '🍏 Maçan Vrede 🍏', '🍍 Abacaxi 🍍'], 'https://i.pinimg.com/736x/3e/a8/c9/3ea8c9ce3911dff7a88cb8539cd8408c.jpg')">Escolher Sabor</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1624517452488-04869289c4ca?w=300">
-                    <h3>Milkshake</h3><span class="price">R$ 18.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Milkshake', 18.00, ['Chocolate', 'Morango', 'Baunilha', 'Oreo'], 'https://images.unsplash.com/photo-1624517452488-04869289c4ca?w=300')">Escolher Sabor</button>
+                    <img src="https://mexicanmademeatless.com/wp-content/uploads/2023/02/Mangonadas_Recipe2023.jpg">
+                    <h3>Mongorango</h3>
+                     <span class="old-price">R$ 9,99</span> 
+                     <span class="price">R$ 8,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Abacaxi Hortelã', 8.00, 'https://mexicanmademeatless.com/wp-content/uploads/2023/02/Mangonadas_Recipe2023.jpg')">Adicionar</button>
                 </div>
+                   
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=300">
-                    <h3>Suco Natural</h3><span class="price">R$ 10.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Suco Natural', 10.00, ['Laranja', 'Abacaxi', 'Uva', 'Acerola'], 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=300')">Escolher Fruta</button>
+                    <img src="https://www.comidaereceitas.com.br/wp-content/uploads/2019/11/frozen_abacaxi-780x510.jpg">
+                    <h3>Abacaxi Hortelã</h3>
+                     <span class="old-price">R$ 7,99</span> 
+                     <span class="price">R$ 6,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Abacaxi Hortelã', 6.00, 'https://www.comidaereceitas.com.br/wp-content/uploads/2019/11/frozen_abacaxi-780x510.jpg')">Adicionar</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1556881286-fc6915169721?w=300">
-                    <h3>Água Mineral</h3><span class="price">R$ 5.00</span>
-                    <button class="btn-add" onclick="addToCart('Água Mineral', 5.00, 'https://images.unsplash.com/photo-1556881286-fc6915169721?w=300')">Adicionar</button>
+                    <img src="https://matereal.com.br/wp-content/uploads/2025/11/chas-gelados-scaled-500x383.jpg">
+                    <h3>Chá Tropical</h3>
+                     <span class="old-price">R$ 11,99</span> 
+                     <span class="price">R$ 10,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Chá Tropical', 10.00, 'https://matereal.com.br/wp-content/uploads/2025/11/chas-gelados-scaled-500x383.jpg')">Adicionar</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300">
-                    <h3>Coca-Cola Lata</h3><span class="price">R$ 7.00</span>
-                    <button class="btn-add" onclick="addToCart('Coca-Cola Lata', 7.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300')">Adicionar</button>
+                    <img src="https://thedrinks.com.br/images/drinks/1702066073.jpg">
+                    <h3>Grape Fresh</h3>
+                     <span class="old-price">R$ 7,99</span> 
+                     <span class="price">R$ 6,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Grape Fresh', 6.00, 'https://thedrinks.com.br/images/drinks/1702066073.jpg')">Adicionar</button>
+                </div>
+                    
+                <div class="product-card">
+                    <img src="https://s2.glbimg.com/wLBKq69au3s30jblaFXNmM50tJ0=/e.glbimg.com/og/ed/f/original/2016/04/28/martini-flower.jpg">
+                    <h3>Hibisco Spritz</h3>
+                     <span class="old-price">R$ 12,99</span> 
+                     <span class="price">R$ 10,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Hibisco Spritz', 10.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300')">Adicionar</button>
+                </div>
+                   
+                <div class="product-card">
+                    <img src="https://img.freepik.com/fotos-gratis/cocktail-colorido-arco-iris_140725-9206.jpg?semt=ais_incoming&w=740&q=80">
+                    <h3>Mocktail</h3>
+                     <span class="old-price">R$ 19,99</span> 
+                     <span class="price">R$ 18,00
+                     <span class="badge-ml">350ml</span>
+                     </span>
+                    <button class="btn-add" onclick="addToCart('Mocktail', 18.00, 'https://img.freepik.com/fotos-gratis/cocktail-colorido-arco-iris_140725-9206.jpg?semt=ais_incoming&w=740&q=80')">Adicionar</button>
                 </div>
             </div>
         </div>
-
+<!--=========================-->
+            
         <div class="menu-section" data-category="copao">
             <h2>Copão</h2>
+                
             <div class="carousel-container drag-scroll">
+                    
                 <div class="product-card">
                     <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300">
-                    <h3>Copão Whisky</h3><span class="price">R$ 30.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Copão Whisky', 30.00, ['Red Label', 'Jack Daniels', 'Ballantines', 'Passport'], 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300')">Escolher Whisky</button>
+                    <h3>Pitu <span class="badge-ml">100ml</span></h3>
+                    <h3>Red Bull <span class="badge-ml">350ml</span></h3>
+                    <h3>Gelo com Sabor</h3>
+                    <span class="old-price">R$ 29,99</span> 
+                    <span class="price">R$ 27,00
+                    <span class="badge-ml">700ml</span>
+                    </span>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Pitu com Red Bull e Gelo sabor ', 27.00, ['Red Label', 'Jack Daniels', 'Ballantines', 'Passport'], 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300')">Escolher sabor do Gelo</button>
                 </div>
+                    
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=300">
-                    <h3>Copão de Gin</h3><span class="price">R$ 28.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Copão Gin', 28.00, ['Tropical', 'Melancia', 'Morango', 'Maçã Verde'], 'https://images.unsplash.com/photo-1595981267035-7b04ca84a82d?w=300')">Escolher Sabor</button>
+                    <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300">
+                    <h3>Pitu <span class="badge-ml">100ml</span></h3>
+                    <h3>Red Bull <span class="badge-ml">350ml</span></h3>
+                    <h3>Gelo com Sabor</h3>
+                    <span class="old-price">R$ 29,99</span> 
+                    <span class="price">R$ 27,00
+                    <span class="badge-ml">700ml</span>
+                    </span>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Pitu com Red Bull e Gelo sabor ', 27.00, ['Red Label', 'Jack Daniels', 'Ballantines', 'Passport'], 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300')">Escolher sabor do Gelo</button>
                 </div>
+                
                 <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1560512823-829485b8bf24?w=300">
-                    <h3>Copão de Vodka</h3><span class="price">R$ 25.00</span>
-                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Copão Vodka', 25.00, ['Energético', 'Suco Uva', 'Coco', 'Maracujá'], 'https://images.unsplash.com/photo-1560512823-829485b8bf24?w=300')">Escolher Mix</button>
+                    <img src="https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300">
+                    <h3>Pitu <span class="badge-ml">100ml</span></h3>
+                    <h3>Red Bull <span class="badge-ml">350ml</span></h3>
+                    <h3>Gelo com Sabor</h3>
+                    <span class="old-price">R$ 29,99</span> 
+                    <span class="price">R$ 27,00
+                    <span class="badge-ml">700ml</span>
+                    </span>
+                    <button class="btn-add btn-flavor" onclick="openFlavorModal('Pitu com Red Bull e Gelo sabor ', 27.00, ['Red Label', 'Jack Daniels', 'Ballantines', 'Passport'], 'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=300')">Escolher sabor do Gelo</button>
                 </div>
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=300">
-                    <h3>Suco Laranja 700ml</h3><span class="price">R$ 15.00</span>
-                    <button class="btn-add" onclick="addToCart('Suco Laranja 700ml', 15.00, 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=300')">Adicionar</button>
-                </div>
-                <div class="product-card">
-                    <img src="https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300">
-                    <h3>Refri 600ml</h3><span class="price">R$ 10.00</span>
-                    <button class="btn-add" onclick="addToCart('Refri 600ml', 10.00, 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=300')">Adicionar</button>
-                </div>
+                    
+                
             </div>
         </div>
 
@@ -557,9 +662,9 @@
         const now = new Date();
         
         // Defina aqui o horário de abertura e fechamento
-        const horaAbertura = 00;
+        const horaAbertura = 08;   //abre
         const minutoAbertura = 0;
-        const horaFechamento = 06;
+        const horaFechamento = 20;  //Fecha
         const minutoFechamento = 30;
 
         // Converte tudo para minutos totais desde o início do dia
@@ -759,7 +864,7 @@
 
     function finalizarWhatsApp() {
         const type = document.getElementById('delivery-type').value;
-        let msg = `*🐝 NOVO PEDIDO - BEEDRINKS*\n\n`;
+        let msg = `*NOVO PEDIDO - NUANCE*\n\n`;
         
         if (type === 'mesa') {
             msg += `*Cliente:* ${document.getElementById('mesa-nome').value}\n*Local:* Mesa 5\n`;
