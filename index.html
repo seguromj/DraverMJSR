@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Dash | HUD Futurista</title>
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -97,7 +99,7 @@
         .gps-active {
             border: 1px solid var(--neon-green) !important;
             color: var(--neon-green) !important;
-            box-shadow: 0 0 10px var(--neon-green);
+            box-shadow: 0 0-10px var(--neon-green);
         }
 
         input, select {
@@ -152,6 +154,7 @@
 
     <div class="header">
         <h2>PILOT HUD</h2>
+        <div id="status-background" style="font-size: 10px; margin-top: 5px; color: #666;">MODO SEGUNDO PLANO: INATIVO</div>
     </div>
 
     <div class="card meta-container">
@@ -167,7 +170,6 @@
         <label class="stat-label">Rastreador de KM Real (GPS)</label>
         <span class="stat-value neon-text-green" id="gps-km">0.00 KM</span>
         <button id="btn-gps" class="btn btn-gps" style="margin-top:10px" onclick="toggleGPS()">ATIVAR RASTREIO</button>
-        <p style="font-size: 9px; color: #666; margin-top: 5px;">Mantenha a aba aberta para monitorar em segundo plano</p>
     </div>
 
     <div class="stats-grid">
@@ -176,7 +178,7 @@
             <span class="stat-value neon-text-green" id="total-bruto">R$ 0,00</span>
         </div>
         <div class="stat-box">
-            <span class="stat-label">KM Corridas</span>
+            <span class="stat-label">KM Corridas (Manual)</span>
             <span class="stat-value neon-text-blue" id="km-acumulado">0.0 KM</span>
         </div>
         <div class="stat-box" style="grid-column: span 2; border-left-color: var(--neon-blue);">
@@ -230,10 +232,11 @@
         let registros = JSON.parse(localStorage.getItem('fut_data')) || [];
         let metaDiaria = localStorage.getItem('fut_meta') || 300;
         let kmGPS = parseFloat(localStorage.getItem('fut_km_gps')) || 0;
-        let proximoBip = Math.floor(kmGPS) + 1; // Controla o bip a cada 1km
+        let proximoBip = Math.floor(kmGPS) + 1;
         
         let watchID = null;
         let lastCoords = null;
+        let wakeLock = null;
 
         // Contexto de áudio para o BIP
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -244,10 +247,23 @@
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
             oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // Tom agudo
+            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
             gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
             oscillator.start();
             oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // FUNÇÃO PARA IMPEDIR A TELA DE APAGAR (WAKE LOCK)
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    document.getElementById('status-background').innerText = "MODO SEGUNDO PLANO: ATIVO (TELA SEMPRE ACESA)";
+                    document.getElementById('status-background').style.color = "var(--neon-green)";
+                }
+            } catch (err) {
+                console.log(`${err.name}, ${err.message}`);
+            }
         }
 
         document.getElementById('input-meta').value = metaDiaria;
@@ -262,8 +278,9 @@
             const btn = document.getElementById('btn-gps');
             if (watchID === null) {
                 if ("geolocation" in navigator) {
-                    // Ativa o áudio no primeiro clique (regra de navegadores)
                     if (audioCtx.state === 'suspended') audioCtx.resume();
+                    
+                    requestWakeLock(); // Ativa o modo de tela sempre acesa
                     
                     btn.innerText = "RASTREIO ATIVO";
                     btn.classList.add('gps-active');
@@ -273,13 +290,10 @@
                                 lastCoords.latitude, lastCoords.longitude,
                                 pos.coords.latitude, pos.coords.longitude
                             );
-                            
-                            if (d > 0.005) { // Movimento mínimo de 5 metros
+                            if (d > 0.005) { 
                                 kmGPS += d;
                                 localStorage.setItem('fut_km_gps', kmGPS);
                                 document.getElementById('gps-km').innerText = kmGPS.toFixed(2) + " KM";
-                                
-                                // Lógica do Bip a cada 1km
                                 if (kmGPS >= proximoBip) {
                                     tocarBip();
                                     proximoBip = Math.floor(kmGPS) + 1;
@@ -292,6 +306,12 @@
             } else {
                 navigator.geolocation.clearWatch(watchID);
                 watchID = null;
+                if (wakeLock !== null) {
+                    wakeLock.release();
+                    wakeLock = null;
+                }
+                document.getElementById('status-background').innerText = "MODO SEGUNDO PLANO: INATIVO";
+                document.getElementById('status-background').style.color = "#666";
                 btn.innerText = "ATIVAR RASTREIO";
                 btn.classList.remove('gps-active');
                 lastCoords = null;
@@ -333,7 +353,6 @@
                 registros.push(entry);
                 localStorage.setItem('fut_data', JSON.stringify(registros));
                 atualizarDashboard();
-                
                 document.getElementById('valor').value = '';
                 document.getElementById('km-corrida').value = '';
                 document.getElementById('valor-gasto').value = '';
@@ -342,7 +361,7 @@
         }
 
         function excluirRegistro(id) {
-            if(confirm("Excluir este item permanentemente?")) {
+            if(confirm("Excluir este item?")) {
                 registros = registros.filter(r => r.id !== id);
                 localStorage.setItem('fut_data', JSON.stringify(registros));
                 atualizarDashboard();
@@ -361,22 +380,10 @@
                 if(r.tipo === 'corrida') {
                     bruto += r.valor;
                     kmSoma += r.km;
-                    lista.innerHTML += `
-                        <tr>
-                            <td>${r.plat}</td>
-                            <td class="neon-text-green">R$ ${r.valor.toFixed(2)}</td>
-                            <td>${r.km}km</td>
-                            <td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td>
-                        </tr>`;
+                    lista.innerHTML += `<tr><td>${r.plat}</td><td class="neon-text-green">R$ ${r.valor.toFixed(2)}</td><td>${r.km}km</td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td></tr>`;
                 } else {
                     gastos += r.valor;
-                    lista.innerHTML += `
-                        <tr>
-                            <td>GASTO</td>
-                            <td class="neon-text-purple">R$ ${r.valor.toFixed(2)}</td>
-                            <td>${r.desc}</td>
-                            <td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td>
-                        </tr>`;
+                    lista.innerHTML += `<tr><td>GASTO</td><td class="neon-text-purple">R$ ${r.valor.toFixed(2)}</td><td>${r.desc}</td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td></tr>`;
                 }
             });
 
@@ -391,7 +398,7 @@
         }
 
         function limparTudo() {
-            if(confirm("Isso apagará todos os dados salvos. Confirmar?")) {
+            if(confirm("Reiniciar todo o sistema?")) {
                 localStorage.clear();
                 location.reload();
             }
