@@ -377,29 +377,24 @@
         }
 
         function iniciarCronometro() {
-            // Verifica se o sistema já está permanentemente liberado pelo ID/Senha
             const liberadoPermanente = localStorage.getItem('mjsk_liberado_permanente') === 'true';
             
-            // Se NÃO estiver liberado pelo ID/Senha, aplica o timer de 3 minutos de degustação
             if (!liberadoPermanente) {
                 setTimeout(function() {
-                    // Verifica novamente se ele não desbloqueou durante esses 3 minutos
+                    // Re-checa o status após os 20 minutos
                     if (localStorage.getItem('mjsk_liberado_permanente') !== 'true') {
                         document.getElementById('modal-trava').style.display = 'flex';
-                    }        //🚨🚨🚨🚨🚨🕡🕡🕡🕡🕡🕡🕡🚨🚨🚨🚨🚨
-                }, 1200000); // O cálculo é simples: (1 minuto) x (60 Segundos) x (1000 Milissegundos) = 60.000.🚨🚨
+                    }
+                }, 120000); // 1 minutos exatos
             }
         }
 
         function validarAcesso() {
             const id = document.getElementById('trava-id').value;
             const pass = document.getElementById('trava-senha').value;
-            // SENHA 🚨🚨🚨🚨🚨🚨🔐🔐🔐🔐🔐🔐🔐🚨🚨🚨🚨🚨🚨🚨
             if (id === "111219" && pass === "111219") { 
-                // Marca no sistema que ele agora tem acesso oficial (sai do modo degustação)
                 localStorage.setItem('mjsk_liberado_permanente', 'true');
                 
-                // Inicia a data de expiração oficial se não existir
                 if (!localStorage.getItem('mjsk_expiracao')) {
                     const dataExp = new Date();
                     dataExp.setDate(dataExp.getDate() + 30);
@@ -408,6 +403,7 @@
 
                 document.getElementById('modal-trava').style.display = 'none';
                 alert("Acesso Oficial Liberado!");
+                location.reload(); // Recarrega para limpar o timeout pendente
             } else {
                 alert("ID ou Senha incorretos!");
             }
@@ -425,14 +421,12 @@
 
                 if (resto <= 0) {
                     clearInterval(intervalo);
-                    // Quando o cronograma zerar, bloqueia novamente e reseta o status de liberado
                     localStorage.setItem('mjsk_liberado_permanente', 'false');
                     localStorage.removeItem('mjsk_expiracao');
                     document.getElementById('msg-trava').innerText = "Sua licença expirou! Renove seu ID e Senha.";
                     document.getElementById('modal-trava').style.display = 'flex';
                     return;
                 }
-                       //🚨🚨🚨🚨🚨📆📆📆📆📆📆🚨🚨🚨🚨🚨
                 const dias = Math.floor(resto / (1000 * 60 * 60 * 24));
                 const horas = Math.floor((resto % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const mins = Math.floor((resto % (1000 * 60 * 60)) / (1000 * 60));
