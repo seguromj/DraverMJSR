@@ -319,16 +319,7 @@
     areaInstalacao.style.display = 'none';
   });
 </script>
-<!--====================================-->
-
-
-
-
-    
 <script>
-        // FORÇAR RESET DE SESSÃO PARA TESTE
-        // sessionStorage.removeItem('mjsk_unlocked'); // Comentei para não resetar sempre que atualizar
-
         let registros = JSON.parse(localStorage.getItem('mjsk_data_v5')) || [];
         
         const motoboy = JSON.parse(localStorage.getItem('mjsk_motorista'));
@@ -349,23 +340,29 @@
         }
 
         function iniciarCronometro() {
-            // Só inicia o contador de 30 segundos se o sistema ainda não estiver desbloqueado nesta sessão
-            if (sessionStorage.getItem('mjsk_unlocked') !== 'true') {
+            // Verifica se o sistema já está permanentemente liberado pelo ID/Senha
+            const liberadoPermanente = localStorage.getItem('mjsk_liberado_permanente') === 'true';
+            
+            // Se NÃO estiver liberado pelo ID/Senha, aplica o timer de 3 minutos de degustação
+            if (!liberadoPermanente) {
                 setTimeout(function() {
-                    if (sessionStorage.getItem('mjsk_unlocked') !== 'true') {
+                    // Verifica novamente se ele não desbloqueou durante esses 3 minutos
+                    if (localStorage.getItem('mjsk_liberado_permanente') !== 'true') {
                         document.getElementById('modal-trava').style.display = 'flex';
                     }
-                }, 30000); 
+                }, 180000); // 3 minutos em milissegundos
             }
         }
 
         function validarAcesso() {
             const id = document.getElementById('trava-id').value;
             const pass = document.getElementById('trava-senha').value;
-            // SENHA ATUALIZADA
+            // SENHA
             if (id === "11121999" && pass === "11121999") {
-                sessionStorage.setItem('mjsk_unlocked', 'true');
+                // Marca no sistema que ele agora tem acesso oficial (sai do modo degustação)
+                localStorage.setItem('mjsk_liberado_permanente', 'true');
                 
+                // Inicia a data de expiração oficial se não existir
                 if (!localStorage.getItem('mjsk_expiracao')) {
                     const dataExp = new Date();
                     dataExp.setDate(dataExp.getDate() + 30);
@@ -373,7 +370,7 @@
                 }
 
                 document.getElementById('modal-trava').style.display = 'none';
-                alert("Acesso Liberado!");
+                alert("Acesso Oficial Liberado!");
             } else {
                 alert("ID ou Senha incorretos!");
             }
@@ -391,7 +388,10 @@
 
                 if (resto <= 0) {
                     clearInterval(intervalo);
-                    document.getElementById('msg-trava').innerText = "Sua licença de 30 dias expirou!";
+                    // Quando o cronograma zerar, bloqueia novamente e reseta o status de liberado
+                    localStorage.setItem('mjsk_liberado_permanente', 'false');
+                    localStorage.removeItem('mjsk_expiracao');
+                    document.getElementById('msg-trava').innerText = "Sua licença expirou! Renove seu ID e Senha.";
                     document.getElementById('modal-trava').style.display = 'flex';
                     return;
                 }
