@@ -1,6 +1,6 @@
 {
-  "name": "NUANCE - Barman Darwin",
-  "short_name": "NUANCE",
+  "name": "MJSR PRO 5.0.3",
+  "short_name": "MJSR",
   "description": "Drinks exclusivos preparados pelo Barman Darwin",
   "start_url": "./index.html",
   "display": "standalone",
