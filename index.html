@@ -132,8 +132,7 @@
             font-weight: bold;
         }
 
-        /* Estilo para o modal de trava */
-        #modal-trava {
+        #modal-trava, #modal-aviso-final {
             z-index: 3000;
             background: #000;
         }
@@ -153,7 +152,7 @@
     <div id="modal-trava" class="modal-full">
         <div class="card" style="width: 100%; max-width: 300px; border: 2px solid var(--neon-purple);">
             <h2 style="color: var(--neon-purple);">SISTEMA BLOQUEADO</h2>
-            <p style="font-size: 12px; margin-bottom: 15px;">Insira as credenciais para continuar</p>
+            <p id="msg-trava" style="font-size: 12px; margin-bottom: 15px;">Insira as credenciais para continuar</p>
             <input type="text" id="trava-id" placeholder="ID">
             <input type="password" id="trava-senha" placeholder="SENHA">
             <button class="btn btn-main" onclick="validarAcesso()">Desbloquear</button>
@@ -161,9 +160,20 @@
         </div>
     </div>
 
+    <div id="modal-aviso-final" class="modal-full">
+        <div class="card" style="width: 100%; max-width: 300px; border: 2px solid #ff4444;">
+            <h2 style="color: #ff4444;">AVISO DE EXPIRAÇÃO</h2>
+            <p style="font-size: 14px; margin-bottom: 15px;">Atenção! Faltam apenas 10 minutos para o sistema ser bloqueado permanentemente.</p>
+            <p style="font-size: 12px; color: #aaa;">Para continuar usando, entre em contato agora para efetuar o pagamento.</p>
+            <button class="btn" style="background:#25d366; color:#fff;" onclick="solicitarAcesso()">PAGAR AGORA (WHATSAPP)</button>
+            <button class="btn" style="background:#444; color:#fff;" onclick="document.getElementById('modal-aviso-final').style.display='none'">ENTENDI</button>
+        </div>
+    </div>
+
     <div class="header">
         <h2 style="margin:0; color:var(--neon-blue); letter-spacing:2px;">MJSR PRO <span style="font-size: 10px;"> 5.0.3</span></h2>
         <span id="user-logged" style="font-size: 10px; color: var(--neon-green);"></span>
+        <div id="display-validade" style="font-size: 10px; color: #ff4444; margin-top: 5px; font-weight: bold;"></div>
     </div>
 
     <div class="card">
@@ -184,6 +194,17 @@
         <div class="stat-box">
             <span class="stat-label">KM Total</span>
             <span class="stat-value" id="total-km" style="color:var(--neon-blue);">0.0 KM</span>
+        </div>
+    </div>
+    
+    <div class="stats-grid" style="margin-top: 10px;">
+        <div class="stat-box" style="border-left-color: #ff4444;">
+            <span class="stat-label">Total Gasto</span>
+            <span class="stat-value" id="total-gasto" style="color:#ff4444;">R$ 0,00</span>
+        </div>
+        <div class="stat-box" style="border-left-color: var(--neon-green);">
+            <span class="stat-label">Lucro Líquido</span>
+            <span class="stat-value" id="lucro-real" style="color:var(--neon-green);">R$ 0,00</span>
         </div>
     </div>
 
@@ -228,7 +249,8 @@
         if(motoboy) {
             document.getElementById('modal-login').style.display = 'none';
             document.getElementById('user-logged').innerText = "Motorista: " + motoboy.nome;
-            iniciarCronometro(); // Inicia contagem se já estiver logado
+            iniciarCronometro(); 
+            iniciarContagemMensal();
         }
 
         function entrarServico() {
@@ -240,22 +262,25 @@
             } else { alert("Preencha Nome e Whats!"); }
         }
 
-        // LÓGICA DE TRAVA (20 MINUTOS)
         function iniciarCronometro() {
-            // Verifica se já foi desbloqueado nesta sessão
-            if (sessionStorage.getItem('mjsk_unlocked') === 'true') return;
-
+            // Removi a trava de sessionStorage para que ele SEMPRE peça a senha após o tempo definido durante seus testes.
             setTimeout(function() {
                 document.getElementById('modal-trava').style.display = 'flex';
-            }, 2 * 60 * 1000); // 20 minutos em milisegundos
+            }, 2 * 60 * 1000); // 2 minutos para testar
         }
 
         function validarAcesso() {
             const id = document.getElementById('trava-id').value;
             const pass = document.getElementById('trava-senha').value;
-
-            if (id === "111219" && pass === "111219") {
+            if (id === "1112199" && pass === "1112199") {
                 sessionStorage.setItem('mjsk_unlocked', 'true');
+                
+                if (!localStorage.getItem('mjsk_expiracao')) {
+                    const dataExp = new Date();
+                    dataExp.setDate(dataExp.getDate() + 30);
+                    localStorage.setItem('mjsk_expiracao', dataExp.getTime());
+                }
+
                 document.getElementById('modal-trava').style.display = 'none';
                 alert("Acesso Liberado!");
             } else {
@@ -263,14 +288,43 @@
             }
         }
 
+        function iniciarContagemMensal() {
+            const exp = localStorage.getItem('mjsk_expiracao');
+            if (!exp) return;
+
+            let avisoExibido = false;
+
+            const intervalo = setInterval(() => {
+                const agora = new Date().getTime();
+                const resto = exp - agora;
+
+                if (resto <= 0) {
+                    clearInterval(intervalo);
+                    document.getElementById('msg-trava').innerText = "Sua licença de 30 dias expirou!";
+                    document.getElementById('modal-trava').style.display = 'flex';
+                    return;
+                }
+
+                const dias = Math.floor(resto / (1000 * 60 * 60 * 24));
+                const horas = Math.floor((resto % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const mins = Math.floor((resto % (1000 * 60 * 60)) / (1000 * 60));
+
+                document.getElementById('display-validade').innerText = `Expira em: ${dias}d ${horas}h ${mins}m`;
+
+                if (resto <= (10 * 60 * 1000) && !avisoExibido) {
+                    document.getElementById('modal-aviso-final').style.display = 'flex';
+                    avisoExibido = true;
+                }
+            }, 1000);
+        }
+
         function solicitarAcesso() {
             const motoboyInfo = JSON.parse(localStorage.getItem('mjsk_motorista'));
             const nomeStr = motoboyInfo ? motoboyInfo.nome : "Motorista";
-            const msg = encodeURIComponent("Olá, eu sou o motorista " + nomeStr + " e quero ter o ID e Senha do sistema MJSR.");
+            const msg = encodeURIComponent("Olá, eu sou o motorista " + nomeStr + " e preciso liberar/renovar meu acesso no sistema MJSR.");
             window.open("https://wa.me/5562995679219?text=" + msg);
         }
 
-        // Sistema de Foto
         const foto = localStorage.getItem('mjsk_foto_pix');
         if(foto) document.getElementById('img-qr-exibicao').src = foto;
         document.getElementById('input-foto-pix').addEventListener('change', function(e) {
@@ -335,11 +389,17 @@
         }
 
         function atualizarDash() {
-            let bruto = 0, kmTotal = 0;
+            let bruto = 0, kmTotal = 0, gastosTotal = 0;
             const lista = document.getElementById('lista-historico');
             lista.innerHTML = "";
             [...registros].reverse().slice(0, 10).forEach(r => {
-                if(r.tipo === 'corrida') { bruto += r.valor; kmTotal += r.km; }
+                if(r.tipo === 'corrida') { 
+                    bruto += r.valor; 
+                    kmTotal += r.km; 
+                } else {
+                    gastosTotal += r.valor;
+                }
+                
                 let b = r.label === 'Uber' ? 'badge-uber' : (r.label === '99 App' || r.label === '99' ? 'badge-99' : (r.tipo === 'despesa' ? 'badge-gasto' : 'badge-particular'));
                 
                 lista.innerHTML += `<tr>
@@ -349,8 +409,13 @@
                     <td><button class="btn-delete" onclick="excluirRegistro(${r.id})">X</button></td>
                 </tr>`;
             });
+
+            let lucroCalculado = bruto - gastosTotal;
+
             document.getElementById('total-bruto').innerText = "R$ " + bruto.toFixed(2);
             document.getElementById('total-km').innerText = kmTotal.toFixed(1) + " KM";
+            document.getElementById('total-gasto').innerText = "R$ " + gastosTotal.toFixed(2);
+            document.getElementById('lucro-real').innerText = "R$ " + lucroCalculado.toFixed(2);
         }
 
         function excluirRegistro(id) {
