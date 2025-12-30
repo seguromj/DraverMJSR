@@ -125,10 +125,12 @@
             text-align: center;
         }
         #modal-pix img {
-            max-width: 100%;
+            max-width: 90%;
             max-height: 70vh;
+            object-fit: contain;
             border-radius: 10px;
             border: 3px solid var(--neon-green);
+            box-shadow: 0 0 20px var(--neon-green);
         }
 
         .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -147,6 +149,36 @@
         #modal-trava, #modal-aviso-final {
             z-index: 3000;
             background: #000;
+        }
+
+        /* Estilo para o status da imagem */
+        .status-imagem-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        /* Estilo da Miniatura */
+        #thumb-pix {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid var(--neon-green);
+            object-fit: cover;
+        }
+
+        /* Estilo Botão Voltar do Modal */
+        .btn-voltar-modal {
+            margin-top: 20px;
+            padding: 10px 30px;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: rgba(0, 243, 255, 0.1);
+            box-shadow: 0 0 10px var(--neon-blue);
         }
     </style>
 </head>
@@ -191,11 +223,16 @@
     <div class="card">
         <span class="stat-label">QR Code da Galeria</span>
         <input type="file" id="input-foto-pix" accept="image/*">
+        <div id="status-imagem-pix" class="status-imagem-container" style="display: none;">
+            <img id="thumb-pix" src="" alt="Thumbnail">
+            <span style="color: var(--neon-green); font-weight: bold; font-size: 13px;">Imagem ✅</span>
+            <button class="btn-delete" onclick="removerFotoPix()">Excluir</button>
+        </div>
     </div>
 
     <div id="modal-pix" class="modal-full" onclick="this.style.display='none'">
         <img id="img-qr-exibicao" src="" alt="QR Code">
-        <p style="color:white; margin-top:15px; font-weight:bold;">TOQUE PARA FECHAR</p>
+        <div class="btn-voltar-modal">TOQUE PARA VOLTAR</div>
     </div>
 
     <div class="stats-grid">
@@ -319,8 +356,7 @@
     areaInstalacao.style.display = 'none';
   });
 </script>
-    <!--🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨-->
-<script>
+    <script>
         let registros = JSON.parse(localStorage.getItem('mjsk_data_v5')) || [];
         
         const motoboy = JSON.parse(localStorage.getItem('mjsk_motorista'));
@@ -351,7 +387,7 @@
                     if (localStorage.getItem('mjsk_liberado_permanente') !== 'true') {
                         document.getElementById('modal-trava').style.display = 'flex';
                     }        //🚨🚨🚨🚨🚨🕡🕡🕡🕡🕡🕡🕡🚨🚨🚨🚨🚨
-                }, 60000); // O calculo é: ​O cálculo é simples: (1 minuto) x (60 Segundos) x (1000 Milissegundos) = 60.000.🚨🚨
+                }, 1.200.000); // O cálculo é simples: (1 minuto) x (60 Segundos) x (1000 Milissegundos) = 60.000.🚨🚨
             }
         }
 
@@ -418,15 +454,35 @@
         }
 
         const foto = localStorage.getItem('mjsk_foto_pix');
-        if(foto) document.getElementById('img-qr-exibicao').src = foto;
+        if(foto) {
+            document.getElementById('img-qr-exibicao').src = foto;
+            document.getElementById('thumb-pix').src = foto;
+            document.getElementById('status-imagem-pix').style.display = 'flex';
+            document.getElementById('input-foto-pix').style.display = 'none';
+        }
+
         document.getElementById('input-foto-pix').addEventListener('change', function(e) {
             const r = new FileReader();
             r.onload = function() {
                 localStorage.setItem('mjsk_foto_pix', r.result);
                 document.getElementById('img-qr-exibicao').src = r.result;
+                document.getElementById('thumb-pix').src = r.result;
+                document.getElementById('status-imagem-pix').style.display = 'flex';
+                document.getElementById('input-foto-pix').style.display = 'none';
             }
             r.readAsDataURL(e.target.files[0]);
         });
+
+        function removerFotoPix() {
+            if(confirm("Deseja excluir o QR Code salvo?")) {
+                localStorage.removeItem('mjsk_foto_pix');
+                document.getElementById('img-qr-exibicao').src = "";
+                document.getElementById('thumb-pix').src = "";
+                document.getElementById('status-imagem-pix').style.display = 'none';
+                document.getElementById('input-foto-pix').style.display = 'block';
+                document.getElementById('input-foto-pix').value = "";
+            }
+        }
 
         function abrirModal() {
             if(!document.getElementById('img-qr-exibicao').src) return alert("Suba a foto!");
