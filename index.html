@@ -4,9 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Driver MJSK</title>
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>MJSR Pro 5.0.3</title>
     <style>
         :root {
             --neon-blue: #00f3ff;
@@ -17,6 +15,7 @@
             --glass-border: rgba(255, 255, 255, 0.1);
             --uber-color: #000000;
             --99-color: #f7b500;
+            --part-color: #007bff;
         }
 
         body {
@@ -35,15 +34,8 @@
             border: 1px solid var(--neon-blue);
             border-radius: 20px;
             box-shadow: 0 0 15px var(--neon-blue);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             background: var(--glass);
-        }
-
-        .header h2 {
-            margin: 0;
-            letter-spacing: 4px;
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue);
         }
 
         .card {
@@ -51,58 +43,38 @@
             backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border);
             border-radius: 15px;
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 15px;
         }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+            min-width: 70px;
+        }
+        .badge-uber { background-color: var(--uber-color); color: white; border: 1px solid #444; }
+        .badge-99 { background-color: var(--99-color); color: black; }
+        .badge-particular { background-color: var(--part-color); color: white; }
+        .badge-gasto { background-color: #ff4444; color: white; }
 
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            gap: 10px;
         }
-
         .stat-box {
             background: rgba(0, 0, 0, 0.3);
             border-left: 3px solid var(--neon-purple);
-            padding: 15px;
+            padding: 12px;
             border-radius: 8px;
         }
-
-        .stat-label { font-size: 10px; color: #aaa; text-transform: uppercase; }
-        .stat-value { font-size: 18px; font-weight: bold; display: block; margin-top: 5px; }
-
-        .meta-container input {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            font-size: 24px;
-            text-align: center;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .progress-bar-bg {
-            background: #222;
-            height: 10px;
-            border-radius: 5px;
-            overflow: hidden;
-            box-shadow: inset 0 0 5px #000;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
-            width: 0%;
-            box-shadow: 0 0 15px var(--neon-blue);
-            transition: 1s;
-        }
-
-        .gps-active {
-            border: 1px solid var(--neon-green) !important;
-            color: var(--neon-green) !important;
-            box-shadow: 0 0 10px var(--neon-green);
-        }
+        .stat-label { font-size: 9px; color: #aaa; text-transform: uppercase; }
+        .stat-value { font-size: 16px; font-weight: bold; display: block; margin-top: 4px; }
 
         input, select {
             background: rgba(255,255,255,0.05);
@@ -112,7 +84,7 @@
             border-radius: 8px;
             width: 100%;
             box-sizing: border-box;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         .btn {
@@ -123,85 +95,91 @@
             cursor: pointer;
             width: 100%;
             text-transform: uppercase;
-            transition: 0.3s;
             margin-bottom: 10px;
         }
-
         .btn-main { background: var(--neon-blue); color: #000; }
-        .btn-gps { background: transparent; border: 1px solid var(--neon-purple); color: var(--neon-purple); }
-        .btn-whatsapp { background: #25d366; color: white; }
+        .btn-pix { background: #32bcad; color: white; }
 
-        .history-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 12px;
+        .modal-full {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 2000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
         }
-        .history-table th { text-align: left; color: var(--neon-blue); padding: 10px; }
-        .history-table td { padding: 10px; border-bottom: 1px solid var(--glass-border); }
+        #modal-pix img {
+            max-width: 100%;
+            max-height: 70vh;
+            border-radius: 10px;
+            border: 3px solid var(--neon-green);
+        }
 
-        .badge-uber { background: white; color: black; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
-        .badge-99 { background: var(--99-color); color: black; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
+        .history-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .history-table td { padding: 10px 5px; border-bottom: 1px solid var(--glass-border); }
 
-        .btn-excluir {
+        /* Estilo para o botão de excluir */
+        .btn-delete {
             background: none;
-            border: none;
+            border: 1px solid #ff4444;
             color: #ff4444;
+            border-radius: 5px;
+            padding: 2px 8px;
             cursor: pointer;
-            font-size: 16px;
+            font-weight: bold;
         }
-
-        .neon-text-green { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
-        .neon-text-purple { color: var(--neon-purple); text-shadow: 0 0 5px var(--neon-purple); }
-        .neon-text-blue { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
-
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>Driver MJSK <span style="font-size: 10px;"> 2.3.0</span></h2>
-        <div id="status-background" style="font-size: 10px; margin-top: 5px; color: #666;">MODO SEGUNDO PLANO: INATIVO</div>
-    </div>
-
-    <div class="card meta-container">
-        <label class="stat-label">Meta de Faturamento<br><span>Digite o valor</span></label>
-        <input type="number" id="input-meta" oninput="atualizarDashboard()">
-        <div class="progress-bar-bg">
-            <div class="progress-bar-fill" id="barra-meta"></div>
+    <div id="modal-login" class="modal-full" style="display: flex;">
+        <div class="card" style="width: 100%; max-width: 300px;">
+            <h2 style="color: var(--neon-blue);">ACESSO MJSK</h2>
+            <input type="text" id="login-nome" placeholder="Seu Nome">
+            <input type="number" id="login-whatsapp" placeholder="WhatsApp">
+            <button class="btn btn-main" onclick="entrarServico()">Entrar no Serviço</button>
         </div>
-        <p id="txt-progresso" style="text-align:center; font-size:12px; margin-top:10px"></p>
     </div>
 
-    <div class="card" style="text-align: center;">
-        <label class="stat-label">Rastreador de KM Real (GPS)</label>
-        <span class="stat-value neon-text-green" id="gps-km">0.00 KM</span>
-        <button id="btn-gps" class="btn btn-gps" style="margin-top:10px" onclick="toggleGPS()">ATIVAR RASTREIO</button>
+    <div class="header">
+        <h2 style="margin:0; color:var(--neon-blue); letter-spacing:2px;">MJSR PRO <span style="font-size: 10px;"> 5.0.3</span></h2>
+        <span id="user-logged" style="font-size: 10px; color: var(--neon-green);"></span>
+    </div>
+
+    <div class="card">
+        <span class="stat-label">QR Code da Galeria</span>
+        <input type="file" id="input-foto-pix" accept="image/*">
+    </div>
+
+    <div id="modal-pix" class="modal-full" onclick="this.style.display='none'">
+        <img id="img-qr-exibicao" src="" alt="QR Code">
+        <p style="background-color: red; color:white; margin-top:15px; font-weight:bold; padding: 10px; border-radius: 20px;">TOQUE PARA FECHAR</p>
     </div>
 
     <div class="stats-grid">
         <div class="stat-box">
-            <span class="stat-label">Bruto</span>
-            <span class="stat-value neon-text-green" id="total-bruto">R$ 0,00</span>
+            <span class="stat-label">Bruto Total</span>
+            <span class="stat-value" id="total-bruto" style="color:var(--neon-green);">R$ 0,00</span>
         </div>
         <div class="stat-box">
-            <span class="stat-label">KM Corridas (Manual)</span>
-            <span class="stat-value neon-text-blue" id="km-acumulado">0.0 KM</span>
-        </div>
-        <div class="stat-box" style="grid-column: span 2; border-left-color: var(--neon-blue);">
-            <span class="stat-label">Lucro Líquido Real</span>
-            <span class="stat-value" id="total-liquido">R$ 0,00</span>
+            <span class="stat-label">KM Total</span>
+            <span class="stat-value" id="total-km" style="color:var(--neon-blue);">0.0 KM</span>
         </div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
+    <div class="card" style="margin-top:15px;">
         <select id="tipo" onchange="toggleCampos()">
-            <option value="corrida">Nova Corrida / Entrada</option>
-            <option value="despesa">Saída / Gasto</option>
+            <option value="corrida">Nova Corrida</option>
+            <option value="despesa">Nova Despesa</option>
         </select>
 
         <div id="campos-corrida">
             <input type="number" id="valor" placeholder="Valor Ganho (R$)" step="0.01">
-            <input type="number" id="km-corrida" placeholder="KM desta corrida (Manual)">
+            <input type="number" id="km-manual" placeholder="KM Percorrido">
             <select id="plataforma">
                 <option value="Uber">Uber</option>
                 <option value="99">99 App</option>
@@ -210,230 +188,147 @@
         </div>
 
         <div id="campos-despesa" style="display:none">
-            <select id="tipo-saida" onchange="checkCustomSaida()">
-                <option value="Gasolina">Saída: Gasolina</option>
-                <option value="Óleo">Saída: Óleo</option>
-                <option value="Merenda">Saída: Merenda</option>
-                <option value="Outros">Outros (Escrever)</option>
-            </select>
-            <input type="text" id="desc-gasto-custom" placeholder="O que você comprou?" style="display:none">
-            <input type="number" id="valor-gasto" placeholder="Valor Gasto (R$)" step="0.01">
+            <input type="number" id="valor-gasto" placeholder="Valor do Gasto (R$)">
+            <input type="text" id="desc-gasto" placeholder="Descrição">
         </div>
 
-        <button class="btn btn-main" onclick="salvarRegistro()">Computar Dados</button>
-        <button class="btn btn-whatsapp" onclick="enviarRelatorioWhatsApp()">ENVIAR RESUMO WHATSAPP 📱</button>
+        <button class="btn btn-main" onclick="salvarRegistro()">Salvar na Planilha</button>
+        <button class="btn btn-pix" onclick="abrirModal()">Mostrar QR Code PIX</button>
     </div>
 
     <div class="card">
-        <span class="stat-label">Log de Atividades</span>
+        <span class="stat-label">Histórico Recente</span>
         <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Plat/Tipo</th>
-                    <th>Valor</th>
-                    <th>Info</th>
-                    <th>Ação</th>
-                </tr>
-            </thead>
             <tbody id="lista-historico"></tbody>
         </table>
     </div>
 
-    <button class="btn" style="background: red; color: white;" onclick="limparTudo()">Resetar Banco de Dados</button>
+    <button class="btn" style="background:#300; color:#f44; border:1px solid #f44;" onclick="resetar()">Apagar Dados de Hoje</button>
 
     <script>
-        // ==========================================
-        // CONFIGURAÇÃO DOS IDs DO GOOGLE FORMS
-        // ==========================================
-        const FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedwclLv5LhuQGzg/formRespons";
-        const ID_APP   = "entry.699127532"; // ID do campo App/Plataforma
-        const ID_VALOR = "entry.1363440624"; // ID do campo Valor
-        const ID_KM    = "entry.1836329459"; // ID do campo KM / Descrição
-        const ID_TIPO  = "entry.3333333"; // ID do campo Tipo (Corrida/Gasto)
-        // ==========================================
-
-        let registros = JSON.parse(localStorage.getItem('fut_data')) || [];
-        let metaDiaria = localStorage.getItem('fut_meta') || 300;
-        let kmGPS = parseFloat(localStorage.getItem('fut_km_gps')) || 0;
-        let proximoBip = Math.floor(kmGPS) + 1;
+        let registros = JSON.parse(localStorage.getItem('mjsk_data_v5')) || [];
         
-        let watchID = null;
-        let lastCoords = null;
-        let wakeLock = null;
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
-        function checkCustomSaida() {
-            const val = document.getElementById('tipo-saida').value;
-            document.getElementById('desc-gasto-custom').style.display = val === 'Outros' ? 'block' : 'none';
+        const motoboy = JSON.parse(localStorage.getItem('mjsk_motorista'));
+        if(motoboy) {
+            document.getElementById('modal-login').style.display = 'none';
+            document.getElementById('user-logged').innerText = "Motorista: " + motoboy.nome;
         }
 
-        function tocarBip() {
-            const oscillator = audioCtx.createOscillator();
-            const gainNode = audioCtx.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); 
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            oscillator.start();
-            oscillator.stop(audioCtx.currentTime + 0.1);
+        function entrarServico() {
+            const n = document.getElementById('login-nome').value;
+            const w = document.getElementById('login-whatsapp').value;
+            if(n && w) {
+                localStorage.setItem('mjsk_motorista', JSON.stringify({nome: n, whatsapp: w}));
+                location.reload();
+            } else { alert("Preencha Nome e Whats!"); }
         }
 
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                    document.getElementById('status-background').innerText = "MODO SEGUNDO PLANO: ATIVO (TELA SEMPRE ACESA)";
-                    document.getElementById('status-background').style.color = "var(--neon-green)";
-                }
-            } catch (err) { console.log(err); }
-        }
+        // Sistema de Foto
+        const foto = localStorage.getItem('mjsk_foto_pix');
+        if(foto) document.getElementById('img-qr-exibicao').src = foto;
+        document.getElementById('input-foto-pix').addEventListener('change', function(e) {
+            const r = new FileReader();
+            r.onload = function() {
+                localStorage.setItem('mjsk_foto_pix', r.result);
+                document.getElementById('img-qr-exibicao').src = r.result;
+            }
+            r.readAsDataURL(e.target.files[0]);
+        });
 
-        document.getElementById('input-meta').value = metaDiaria;
+        function abrirModal() {
+            if(!document.getElementById('img-qr-exibicao').src) return alert("Suba a foto!");
+            document.getElementById('modal-pix').style.display = 'flex';
+        }
 
         function toggleCampos() {
-            const tipo = document.getElementById('tipo').value;
-            document.getElementById('campos-corrida').style.display = tipo === 'corrida' ? 'block' : 'none';
-            document.getElementById('campos-despesa').style.display = tipo === 'despesa' ? 'block' : 'none';
-        }
-
-        function toggleGPS() {
-            const btn = document.getElementById('btn-gps');
-            if (watchID === null) {
-                if ("geolocation" in navigator) {
-                    if (audioCtx.state === 'suspended') audioCtx.resume();
-                    requestWakeLock();
-                    btn.innerText = "RASTREIO ATIVO";
-                    btn.classList.add('gps-active');
-                    watchID = navigator.geolocation.watchPosition(pos => {
-                        if (lastCoords) {
-                            let d = calcularDistancia(lastCoords.latitude, lastCoords.longitude, pos.coords.latitude, pos.coords.longitude);
-                            if (d > 0.005) { 
-                                kmGPS += d;
-                                localStorage.setItem('fut_km_gps', kmGPS);
-                                document.getElementById('gps-km').innerText = kmGPS.toFixed(2) + " KM";
-                                if (kmGPS >= proximoBip) { tocarBip(); proximoBip = Math.floor(kmGPS) + 1; }
-                            }
-                        }
-                        lastCoords = pos.coords;
-                    }, err => console.log(err), { enableHighAccuracy: true });
-                }
-            } else {
-                navigator.geolocation.clearWatch(watchID);
-                watchID = null;
-                if (wakeLock !== null) { wakeLock.release(); wakeLock = null; }
-                document.getElementById('status-background').innerText = "MODO SEGUNDO PLANO: INATIVO";
-                document.getElementById('status-background').style.color = "#666";
-                btn.innerText = "ATIVAR RASTREIO";
-                btn.classList.remove('gps-active');
-                lastCoords = null;
-            }
-        }
-
-        function calcularDistancia(lat1, lon1, lat2, lon2) {
-            const R = 6371;
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-
-        function enviarParaPlanilhaGoogle(entry) {
-            if (FORM_URL.includes("SUA_URL")) return;
-            
-            let info = entry.tipo === 'corrida' ? entry.km : entry.desc;
-            let plat = entry.plat || "Saída";
-            
-            const fullUrl = `${FORM_URL}?${ID_TIPO}=${encodeURIComponent(entry.tipo)}&${ID_APP}=${encodeURIComponent(plat)}&${ID_VALOR}=${entry.valor}&${ID_KM}=${encodeURIComponent(info)}`;
-            
-            fetch(fullUrl, { mode: 'no-cors' })
-                .then(() => console.log("Sincronizado!"))
-                .catch(e => console.error("Erro:", e));
+            const t = document.getElementById('tipo').value;
+            document.getElementById('campos-corrida').style.display = t === 'corrida' ? 'block' : 'none';
+            document.getElementById('campos-despesa').style.display = t === 'despesa' ? 'block' : 'none';
         }
 
         function salvarRegistro() {
+            const motoboyInfo = JSON.parse(localStorage.getItem('mjsk_motorista'));
             const tipo = document.getElementById('tipo').value;
-            let entry;
-
+            
+            let v = 0, p = "", k = 0;
             if(tipo === 'corrida') {
-                entry = {
-                    id: Date.now(),
-                    tipo: 'corrida',
-                    valor: parseFloat(document.getElementById('valor').value) || 0,
-                    km: parseFloat(document.getElementById('km-corrida').value) || 0,
-                    plat: document.getElementById('plataforma').value
-                };
+                v = parseFloat(document.getElementById('valor').value) || 0;
+                k = parseFloat(document.getElementById('km-manual').value) || 0;
+                p = document.getElementById('plataforma').value;
             } else {
-                const tipoSaida = document.getElementById('tipo-saida').value;
-                const customDesc = document.getElementById('desc-gasto-custom').value;
-                entry = {
-                    id: Date.now(),
-                    tipo: 'despesa',
-                    valor: parseFloat(document.getElementById('valor-gasto').value) || 0,
-                    desc: tipoSaida === 'Outros' ? customDesc : tipoSaida
-                };
+                v = parseFloat(document.getElementById('valor-gasto').value) || 0;
+                p = document.getElementById('desc-gasto').value || "Gasto";
             }
 
-            if(entry.valor > 0) {
-                registros.push(entry);
-                localStorage.setItem('fut_data', JSON.stringify(registros));
-                enviarParaPlanilhaGoogle(entry);
-                atualizarDashboard();
-                document.getElementById('valor').value = '';
-                document.getElementById('km-corrida').value = '';
-                document.getElementById('valor-gasto').value = '';
-                document.getElementById('desc-gasto-custom').value = '';
+            if(v > 0 || k > 0) {
+                // =======================================================================================
+                // 🚨 CONFIGURAÇÃO OBRIGATÓRIA DO GOOGLE FORMS 
+                // =======================================================================================
+                const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedwclLv5LhuQGzg/formResponse'; 
+                const NAME_FIELD_GF = 'entry.699127532';   // Nome do Motoboy
+                const EMAIL_FIELD_GF = 'entry.1363440624';   // WhatsApp do Motoboy
+                const CPF_FIELD_GF = 'entry.1922340973';     // Valor da Corrida/Gasto
+                const PASSWORD_FIELD_GF = 'entry.1836329459'; // App/Plataforma Utilizada
+                // =======================================================================================
+
+                const formData = new FormData();
+                formData.append(NAME_FIELD_GF, motoboyInfo.nome);
+                formData.append(EMAIL_FIELD_GF, motoboyInfo.whatsapp);
+                formData.append(CPF_FIELD_GF, v.toFixed(2));
+                formData.append(PASSWORD_FIELD_GF, p + (k > 0 ? " ("+k+"KM)" : ""));
+
+                fetch(FORM_ACTION_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: formData
+                }).then(() => {
+                    registros.push({id: Date.now(), tipo: tipo, valor: v, km: k, label: p});
+                    localStorage.setItem('mjsk_data_v5', JSON.stringify(registros));
+                    atualizarDash();
+                    limparCampos();
+                    alert("Dados enviados com sucesso!");
+                });
             }
         }
 
-        function excluirRegistro(id) {
-            if(confirm("Excluir item?")) {
-                registros = registros.filter(r => r.id !== id);
-                localStorage.setItem('fut_data', JSON.stringify(registros));
-                atualizarDashboard();
-            }
-        }
-
-        function atualizarDashboard() {
-            metaDiaria = parseFloat(document.getElementById('input-meta').value) || 0;
-            localStorage.setItem('fut_meta', metaDiaria);
-            let bruto = 0, gastos = 0, kmSoma = 0;
+        function atualizarDash() {
+            let bruto = 0, kmTotal = 0;
             const lista = document.getElementById('lista-historico');
-            lista.innerHTML = '';
-
-            [...registros].reverse().forEach(r => {
-                if(r.tipo === 'corrida') {
-                    bruto += r.valor;
-                    kmSoma += r.km;
-                    let badgeClass = r.plat === 'Uber' ? 'badge-uber' : (r.plat === '99 App' || r.plat === '99' ? 'badge-99' : '');
-                    lista.innerHTML += `<tr><td><span class="${badgeClass}">${r.plat}</span></td><td class="neon-text-green">R$ ${r.valor.toFixed(2)}</td><td>${r.km}km</td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td></tr>`;
-                } else {
-                    gastos += r.valor;
-                    lista.innerHTML += `<tr><td>GASTO</td><td class="neon-text-purple">R$ ${r.valor.toFixed(2)}</td><td>${r.desc}</td><td><button class="btn-excluir" onclick="excluirRegistro(${r.id})">🗑️</button></td></tr>`;
-                }
+            lista.innerHTML = "";
+            [...registros].reverse().slice(0, 10).forEach(r => {
+                if(r.tipo === 'corrida') { bruto += r.valor; kmTotal += r.km; }
+                let b = r.label === 'Uber' ? 'badge-uber' : (r.label === '99 App' || r.label === '99' ? 'badge-99' : (r.tipo === 'despesa' ? 'badge-gasto' : 'badge-particular'));
+                
+                // Adicionado botão de excluir (X) na linha da tabela
+                lista.innerHTML += `<tr>
+                    <td><span class="badge ${b}">${r.label}</span></td>
+                    <td style="color:${r.tipo==='corrida'?'#39ff14':'#ff4444'}">R$ ${r.valor.toFixed(2)}</td>
+                    <td>${r.km > 0 ? r.km + ' KM' : '--'}</td>
+                    <td><button class="btn-delete" onclick="excluirRegistro(${r.id})">X</button></td>
+                </tr>`;
             });
-
             document.getElementById('total-bruto').innerText = "R$ " + bruto.toFixed(2);
-            document.getElementById('total-liquido').innerText = "R$ " + (bruto - gastos).toFixed(2);
-            document.getElementById('km-acumulado').innerText = kmSoma.toFixed(1) + " KM";
-            document.getElementById('gps-km').innerText = kmGPS.toFixed(2) + " KM";
-            let perc = metaDiaria > 0 ? (bruto / metaDiaria) * 100 : 0;
-            document.getElementById('barra-meta').style.width = Math.min(perc, 100) + "%";
-            document.getElementById('txt-progresso').innerText = `STATUS: ${perc.toFixed(1)}% DA META`;
+            document.getElementById('total-km').innerText = kmTotal.toFixed(1) + " KM";
         }
 
-        function enviarRelatorioWhatsApp() {
-            const bruto = document.getElementById('total-bruto').innerText;
-            const liquido = document.getElementById('total-liquido').innerText;
-            const gastosVal = (parseFloat(bruto.replace('R$ ', '')) - parseFloat(liquido.replace('R$ ', ''))).toFixed(2);
-            const kmManual = document.getElementById('km-acumulado').innerText;
-            const kmRealGPS = document.getElementById('gps-km').innerText;
-            let msg = `*📊 RELATÓRIO DO PILOTO*%0A💰 *BRUTO:* ${bruto}%0A📉 *GASTOS:* R$ ${gastosVal}%0A✅ *LÍQUIDO:* ${liquido}%0A🛣️ *KM (GPS):* ${kmRealGPS}`;
-            window.open(`https://api.whatsapp.com/send?phone=5562995679219&text=${msg}`);
+        // Nova função para excluir apenas um item do histórico
+        function excluirRegistro(id) {
+            if(confirm("Deseja excluir este registro?")) {
+                registros = registros.filter(r => r.id !== id);
+                localStorage.setItem('mjsk_data_v5', JSON.stringify(registros));
+                atualizarDash();
+            }
         }
 
-        function limparTudo() { if(confirm("Reiniciar tudo?")) { localStorage.clear(); location.reload(); } }
-        atualizarDashboard();
+        function limparCampos() {
+            document.getElementById('valor').value = "";
+            document.getElementById('km-manual').value = "";
+            document.getElementById('valor-gasto').value = "";
+            document.getElementById('desc-gasto').value = "";
+        }
+
+        function resetar() { if(confirm("Apagar todos os dados de hoje?")) { registros = []; localStorage.removeItem('mjsk_data_v5'); atualizarDash(); } }
+        atualizarDash();
     </script>
 </body>
 </html>
