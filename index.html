@@ -258,6 +258,55 @@
             z-index: 4000;
             background: rgba(0,0,0,0.98);
         }
+
+        /* --- NOVOS ESTILOS PARA AS 6 ALTERAÇÕES --- */
+        .alert-oil {
+            background: #ff4444;
+            color: white;
+            padding: 5px;
+            border-radius: 5px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-top: 5px;
+            text-align: center;
+            display: none;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink { 0% {opacity: 1;} 50% {opacity: 0.3;} 100% {opacity: 1;} }
+
+        .simulador-resultado {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
+            display: none;
+        }
+
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            height: 100px;
+            margin-top: 10px;
+            border-bottom: 1px solid #444;
+            padding-bottom: 5px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: var(--neon-blue);
+            border-radius: 3px 3px 0 0;
+            position: relative;
+            min-height: 2px;
+        }
+        .chart-label {
+            font-size: 7px;
+            position: absolute;
+            top: -15px;
+            width: 100%;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -320,6 +369,14 @@
                 <span class="stat-label">TOTAL ACUMULADO MÊS</span>
                 <span class="stat-value" id="resumo-mes" style="font-size: 18px; color: var(--neon-green);">R$ 0,00</span>
             </div>
+
+            <span class="stat-label">Desempenho por Semana</span>
+            <div class="chart-container">
+                <div class="chart-bar" id="bar-s1"><span class="chart-label" id="lbl-s1"></span></div>
+                <div class="chart-bar" id="bar-s2"><span class="chart-label" id="lbl-s2"></span></div>
+                <div class="chart-bar" id="bar-s3"><span class="chart-label" id="lbl-s3"></span></div>
+                <div class="chart-bar" id="bar-s4"><span class="chart-label" id="lbl-s4"></span></div>
+            </div>
             
             <button class="btn" style="background: #900; color: #fff; font-size: 10px; padding: 10px;" onclick="resetarPlanilhaMensal()">Zerar Tudo (Mensal)</button>
             <button class="btn btn-main" style="background: var(--neon-green);" onclick="salvarMetasMensais()">Aplicar e Salvar</button>
@@ -339,6 +396,20 @@
         </div>
     </div>
 
+    <div class="card" style="border-color: var(--neon-purple);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span class="stat-label">Jornada de Trabalho</span>
+            <span id="timer-display" style="font-family: monospace; font-weight: bold; color: var(--neon-purple);">00:00:00</span>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
+            <button id="btn-timer-start" class="btn" style="background: var(--neon-purple); font-size: 10px; margin-bottom: 0;" onclick="toggleTurno()">Iniciar Turno</button>
+            <div class="stat-box" style="padding: 5px; border-left-color: var(--neon-purple);">
+                <span class="stat-label">Ganho/Hora</span>
+                <span class="stat-value" id="ganho-hora" style="font-size: 12px;">R$ 0,00</span>
+            </div>
+        </div>
+    </div>
+
     <div class="card">
         <span class="stat-label">Configurar Meta Diária (R$)</span>
         <input type="number" id="input-meta-diaria" placeholder="Ex: 200" oninput="atualizarDash()">
@@ -348,6 +419,15 @@
                 <div id="barra-meta" class="meta-bar-fill"></div>
             </div>
         </div>
+    </div>
+
+    <div class="card" style="border-color: #ff4444;">
+        <span class="stat-label">Troca de Óleo (KM)</span>
+        <div style="display: flex; gap: 10px; margin-top: 5px;">
+            <input type="number" id="km-ultima-troca" placeholder="KM da Troca" oninput="checkManutencao()">
+            <input type="number" id="km-intervalo" placeholder="A cada (Ex: 1000)" value="1000" oninput="checkManutencao()">
+        </div>
+        <div id="aviso-oleo" class="alert-oil">⚠️ HORA DE TROCAR O ÓLEO!</div>
     </div>
 
     <div class="card">
@@ -366,7 +446,7 @@
     </div>
 
     <div class="stats-grid">
-        <div class="stat-box">
+        <div class="stats-box">
             <span class="stat-label">Bruto Total</span>
             <span class="stat-value" id="total-bruto" style="color:var(--neon-green);">R$ 0,00</span>
         </div>
@@ -386,6 +466,32 @@
             <span class="stat-value" id="lucro-real" style="color:var(--neon-green);">R$ 0,00</span>
             <button class="btn-lancar" onclick="abrirSeletorLancamento()">Lançar no Mensal</button>
         </div>
+    </div>
+
+    <div class="card" style="margin-top: 10px; border-left: 3px solid #39ff14; padding: 10px;">
+        <span class="stat-label">Eficiência (Lucro / KM)</span>
+        <span class="stat-value" id="lucro-por-km" style="color: #39ff14; font-size: 14px;">R$ 0,00 / KM</span>
+    </div>
+
+    <div class="card" style="border-color: #39ff14;">
+        <span class="stat-label" style="color: #39ff14;">Simulador: Vale a Pena?</span>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;">
+            <div class="dia-box">
+                <label style="color: #39ff14;">Min Verde (R$/KM)</label>
+                <input type="number" id="limit-verde" value="2.0" step="0.1" oninput="simularCorrida()">
+            </div>
+            <div class="dia-box">
+                <label style="color: #f7b500;">Min Amarelo (R$/KM)</label>
+                <input type="number" id="limit-amarelo" value="1.2" step="0.1" oninput="simularCorrida()">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;">
+            <input type="number" id="sim-valor" placeholder="Valor (R$)" oninput="simularCorrida()">
+            <input type="number" id="sim-km" placeholder="KM Total" oninput="simularCorrida()">
+        </div>
+        <div id="sim-resultado" class="simulador-resultado"></div>
     </div>
 
     <div class="card" style="margin-top:15px; border: 1px solid #f7b500;">
@@ -422,6 +528,9 @@
         <button class="btn btn-main" onclick="salvarRegistro()">Salvar na Planilha</button>
         <button class="btn" style="background: var(--neon-purple); color: white;" onclick="abrirModalMetas()">Metas Semana/Mês</button>
         <button class="btn btn-pix" onclick="abrirModal()">Mostrar QR Code PIX</button>
+        
+        <button class="btn" style="background: #333; color: white;" onclick="exportarRelatorioPDF()">Baixar Planilha (Excel/CSV)</button>
+        
         <button class="btn" style="background: #25d366; color: white;" onclick="enviarRelatorioWhats()">Relatório Diário (WhatsApp)</button>
     </div>
 
@@ -467,12 +576,17 @@
             s4: [[],[],[],[],[],[],[]]
         };
 
+        // --- VARIÁVEIS DO CRONÔMETRO ---
+        let tempoInicio = localStorage.getItem('mjsk_inicio_turno') || null;
+        let timerInterval = null;
+
         const motoboy = JSON.parse(localStorage.getItem('mjsk_motorista'));
         if(motoboy) {
             document.getElementById('modal-login').style.display = 'none';
             document.getElementById('user-logged').innerText = "Motorista: " + motoboy.nome;
             iniciarCronometro(); 
             iniciarContagemMensal();
+            if(tempoInicio) iniciarRelogioTurno();
         }
 
         function entrarServico() {
@@ -542,7 +656,7 @@
         function solicitarAcesso() {
             const motoboyInfo = JSON.parse(localStorage.getItem('mjsk_motorista'));
             const nomeStr = motoboyInfo ? motoboyInfo.nome : "Motorista";
-            const msg = encodeURIComponent("Olá, eu sou o motorista " + nomeStr + " e preciso liberar/renovar meu acesso no sistema MJSR.");
+            const msg = encodeURIComponent("Olá, eu sou the motorista " + nomeStr + " e preciso liberar/renovar meu acesso no sistema MJSR.");
             window.open("https://wa.me/5562995679219?text=" + msg);
         }
 
@@ -601,7 +715,7 @@
                 p = document.getElementById('desc-gasto').value || "Gasto";
             }
             if(v > 0 || k > 0) {
-                const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedwclLv5LhuQGzg/formResponse'; 
+                const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedclLv5LhuQGzg/formResponse'; 
                 const NAME_FIELD_GF = 'entry.699127532';   
                 const EMAIL_FIELD_GF = 'entry.1363440624';   
                 const CPF_FIELD_GF = 'entry.1922340973';     
@@ -638,9 +752,16 @@
 
             document.getElementById('cofre-manutencao').innerText = "R$ " + (bruto * 0.10).toFixed(2);
 
-            const meta = parseFloat(document.getElementById('input-meta-diaria').value) || 0;
+            // Alt 1: Lucro por KM
+            if(kmTotal > 0) {
+                document.getElementById('lucro-por-km').innerText = "R$ " + (lucroCalculado / kmTotal).toFixed(2) + " / KM";
+            }
+
+            const metaInput = document.getElementById('input-meta-diaria');
+            const meta = parseFloat(metaInput.value) || 0;
             const barra = document.getElementById('barra-meta');
             const labelProg = document.getElementById('label-progresso');
+
             if(meta > 0) {
                 let perc = (bruto / meta) * 100;
                 if(perc > 100) perc = 100;
@@ -654,6 +775,9 @@
                 barra.style.width = "0%";
                 labelProg.innerText = "Progresso: 0%";
             }
+
+            checkManutencao();
+            atualizarGrafico();
         }
 
         function calcularCombustivel() {
@@ -668,7 +792,6 @@
             }
         }
 
-        // NOVO PROCEDIMENTO PARA RELATÓRIO COM MODAL
         function enviarRelatorioWhats() {
             const salvo = localStorage.getItem('whats_destino_relatorio');
             if(salvo) document.getElementById('whats-destino').value = salvo;
@@ -722,7 +845,7 @@
                     let valorSalvo = planilhaMensal[`s${s}`][d] || "";
                     html += `<div class="dia-box">
                         <label>${diasNome[d]}</label>
-                        <input type="number" id="m-s${s}-d${d}" value="${valorSalvo}" placeholder="0">
+                        <input type="number" id="m-s${s}-d${d}" value="${valorSalvo}" placeholder="0" oninput="salvarMetasMensais()">
                         <button class="btn-hist-dia" onclick="verHistoricoDia(${s}, ${d})">H</button>
                     </div>`;
                 }
@@ -730,12 +853,14 @@
                 html += `</div></div>`;
                 container.innerHTML += html;
             }
+            carregarCamposSalvos();
         }
 
         function abrirModalMetas() {
             document.getElementById('modal-metas').style.display = 'flex';
             gerarInterfaceMetas();
             calcularTotaisMensais();
+            atualizarGrafico();
         }
 
         function verHistoricoDia(semana, diaIdx) {
@@ -765,13 +890,13 @@
         function salvarMetasMensais() {
             for (let s = 1; s <= 4; s++) {
                 for (let d = 0; d < 7; d++) {
-                    const val = parseFloat(document.getElementById(`m-s${s}-d${d}`).value) || 0;
-                    planilhaMensal[`s${s}`][d] = val;
+                    const val = document.getElementById(`m-s${s}-d${d}`).value;
+                    planilhaMensal[`s${s}`][d] = parseFloat(val) || 0;
                 }
             }
             localStorage.setItem('mjsk_planilha_mensal', JSON.stringify(planilhaMensal));
             calcularTotaisMensais();
-            alert("Planilha Mensal Atualizada!");
+            atualizarGrafico();
         }
 
         function calcularTotaisMensais() {
@@ -828,6 +953,165 @@
             
             alert(`Lançado R$ ${lucroCalculado.toFixed(2)} e Histórico salvos na Semana ${sem}!`);
         }
+
+        // --- FUNÇÕES DE PERSISTÊNCIA ---
+        function salvarCamposGlobais() {
+            const inputs = document.querySelectorAll('input, select');
+            let dadosForm = JSON.parse(localStorage.getItem('mjsk_campos_automaticos')) || {};
+            inputs.forEach(campo => {
+                if (campo.type !== 'file' && campo.type !== 'password' && campo.id) {
+                    dadosForm[campo.id] = campo.value;
+                }
+            });
+            localStorage.setItem('mjsk_campos_automaticos', JSON.stringify(dadosForm));
+        }
+
+        function carregarCamposSalvos() {
+            const dadosForm = JSON.parse(localStorage.getItem('mjsk_campos_automaticos'));
+            if (dadosForm) {
+                Object.keys(dadosForm).forEach(id => {
+                    const campo = document.getElementById(id);
+                    if (campo) { campo.value = dadosForm[id]; }
+                });
+            }
+            atualizarDash();
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+                salvarCamposGlobais();
+            }
+        });
+
+        // --- TURNOS (CRONÔMETRO) ---
+        function toggleTurno() {
+            const btn = document.getElementById('btn-timer-start');
+            if(!tempoInicio) {
+                tempoInicio = Date.now();
+                localStorage.setItem('mjsk_inicio_turno', tempoInicio);
+                iniciarRelogioTurno();
+                btn.innerText = "Encerrar Turno";
+                btn.style.background = "#ff4444";
+            } else {
+                if(confirm("Deseja encerrar o turno agora?")) {
+                    clearInterval(timerInterval);
+                    tempoInicio = null;
+                    localStorage.removeItem('mjsk_inicio_turno');
+                    document.getElementById('timer-display').innerText = "00:00:00";
+                    btn.innerText = "Iniciar Turno";
+                    btn.style.background = "var(--neon-purple)";
+                }
+            }
+        }
+
+        function iniciarRelogioTurno() {
+            const btn = document.getElementById('btn-timer-start');
+            btn.innerText = "Encerrar Turno";
+            btn.style.background = "#ff4444";
+            
+            timerInterval = setInterval(() => {
+                const diff = Date.now() - tempoInicio;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('timer-display').innerText = 
+                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+                
+                // Cálculo de Ganho/Hora
+                let bruto = 0;
+                registros.forEach(r => { if(r.tipo === 'corrida') bruto += r.valor; });
+                const horasDecimais = diff / 3600000;
+                if(horasDecimais > 0) {
+                    document.getElementById('ganho-hora').innerText = "R$ " + (bruto / horasDecimais).toFixed(2);
+                }
+            }, 1000);
+        }
+
+        // --- MANUTENÇÃO (ÓLEO) ---
+        function checkManutencao() {
+            const ultima = parseFloat(document.getElementById('km-ultima-troca').value) || 0;
+            const intervalo = parseFloat(document.getElementById('km-intervalo').value) || 1000;
+            let kmTotal = 0;
+            registros.forEach(r => { if(r.tipo === 'corrida') kmTotal += r.km; });
+            
+            const aviso = document.getElementById('aviso-oleo');
+            if(ultima > 0 && kmTotal >= (ultima + intervalo)) {
+                aviso.style.display = 'block';
+            } else {
+                aviso.style.display = 'none';
+            }
+        }
+
+        // --- GRÁFICO ---
+        function atualizarGrafico() {
+            const totais = [
+                planilhaMensal.s1.reduce((a, b) => a + b, 0),
+                planilhaMensal.s2.reduce((a, b) => a + b, 0),
+                planilhaMensal.s3.reduce((a, b) => a + b, 0),
+                planilhaMensal.s4.reduce((a, b) => a + b, 0)
+            ];
+            const max = Math.max(...totais, 1);
+            totais.forEach((t, i) => {
+                const bar = document.getElementById('bar-s' + (i+1));
+                const lbl = document.getElementById('lbl-s' + (i+1));
+                if(bar) {
+                    bar.style.height = (t / max * 100) + "%";
+                    lbl.innerText = "R$" + Math.floor(t);
+                }
+            });
+        }
+
+        // --- SIMULADOR COM LIMITES DINÂMICOS ---
+        function simularCorrida() {
+            const v = parseFloat(document.getElementById('sim-valor').value) || 0;
+            const k = parseFloat(document.getElementById('sim-km').value) || 0;
+            
+            // Novos limites editáveis
+            const lVerde = parseFloat(document.getElementById('limit-verde').value) || 2.0;
+            const lAmarelo = parseFloat(document.getElementById('limit-amarelo').value) || 1.2;
+
+            const res = document.getElementById('sim-resultado');
+            if(v > 0 && k > 0) {
+                const ratio = v / k;
+                res.style.display = 'block';
+                res.innerText = `R$ ${ratio.toFixed(2)} / KM`;
+                
+                if(ratio >= lVerde) { 
+                    res.style.background = "#39ff14"; 
+                    res.style.color = "#000"; 
+                }
+                else if(ratio >= lAmarelo) { 
+                    res.style.background = "#f7b500"; 
+                    res.style.color = "#000"; 
+                }
+                else { 
+                    res.style.background = "#ff4444"; 
+                    res.style.color = "#fff"; 
+                }
+            } else { res.style.display = 'none'; }
+        }
+
+        // --- EXPORTAR ---
+        function exportarRelatorioPDF() {
+            let csv = "Tipo,Label,Valor,KM\n";
+            registros.forEach(r => {
+                csv += `${r.tipo},${r.label},${r.valor},${r.km}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('hidden', '');
+            a.setAttribute('href', url);
+            a.setAttribute('download', 'relatorio_mjsr.csv');
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        window.onload = function() {
+            carregarCamposSalvos();
+            if(tempoInicio) iniciarRelogioTurno();
+        };
 
         atualizarDash();
     </script>
