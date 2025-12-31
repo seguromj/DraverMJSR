@@ -38,6 +38,13 @@
             margin: 0;
             padding: 15px;
             min-height: 100vh;
+            transition: background 0.3s;
+        }
+
+        /* Estilo Modo AMOLED */
+        body.amoled-mode {
+            background: #000000 !important;
+            background-image: none !important;
         }
 
         .header {
@@ -180,6 +187,77 @@
             background: rgba(0, 243, 255, 0.1);
             box-shadow: 0 0 10px var(--neon-blue);
         }
+
+        /* --- ESTILOS PLANILHA MENSAL --- */
+        .semana-container {
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            background: rgba(255,255,255,0.02);
+        }
+        .semana-titulo {
+            color: var(--neon-blue);
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            text-align: left;
+        }
+        .grid-dias {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+        .dia-box { position: relative; }
+        .dia-box label { font-size: 9px; color: #888; display: block; text-align: left; }
+        .dia-box input { padding: 5px; font-size: 11px; margin-bottom: 5px; padding-right: 18px; }
+        
+        /* Botão de Histórico no Dia */
+        .btn-hist-dia {
+            position: absolute;
+            right: 2px;
+            bottom: 8px;
+            background: var(--neon-blue);
+            color: #000;
+            border: none;
+            border-radius: 3px;
+            font-size: 8px;
+            width: 14px;
+            height: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #modal-metas .card {
+            max-height: 85vh;
+            overflow-y: auto;
+            width: 95%;
+        }
+
+        .btn-lancar {
+            background: var(--neon-green);
+            color: black;
+            font-size: 10px;
+            padding: 5px;
+            margin-top: 5px;
+            border-radius: 5px;
+            width: 100%;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Barra de Meta Diária */
+        .meta-container { margin: 10px 0; }
+        .meta-bar-bg { background: #333; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; }
+        .meta-bar-fill { height: 100%; width: 0%; transition: width 0.5s, background 0.5s; }
+
+        /* Modal Interno de Histórico */
+        #modal-detalhe-hist {
+            z-index: 4000;
+            background: rgba(0,0,0,0.98);
+        }
     </style>
 </head>
 <body>
@@ -218,6 +296,58 @@
         <h2 style="margin:0; color:var(--neon-blue); letter-spacing:2px;">MJSR PRO <span style="font-size: 10px;"> 5.0.3</span></h2>
         <span id="user-logged" style="font-size: 10px; color: var(--neon-green);"></span>
         <div id="display-validade" style="font-size: 10px; color: #ff4444; margin-top: 5px; font-weight: bold;"></div>
+        
+        <button onclick="toggleAmoled()" style="background:none; border:1px solid #444; color:#888; font-size:9px; padding:3px 8px; border-radius:10px; margin-top:10px;">Modo AMOLED (Bateria)</button>
+    </div>
+
+    <div id="modal-whats-dest" class="modal-full">
+        <div class="card" style="width: 100%; max-width: 300px; border: 1px solid #25d366;">
+            <h2 style="color: #25d366; font-size: 18px;">ENVIAR RELATÓRIO</h2>
+            <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">Digite o WhatsApp de destino (com DDD):</p>
+            <input type="number" id="whats-destino" placeholder="Ex: 62999999999">
+            <button class="btn" style="background: #25d366; color: white;" onclick="confirmarEnvioWhats()">Enviar Agora</button>
+            <button class="btn" style="background: #444; color: #fff;" onclick="document.getElementById('modal-whats-dest').style.display='none'">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modal-metas" class="modal-full">
+        <div class="card" style="max-width: 350px; border: 1px solid var(--neon-green);">
+            <h2 style="color: var(--neon-green); font-size: 16px; margin-top: 0;">PLANILHA MENSAL</h2>
+            
+            <div id="container-semanas"></div>
+
+            <div class="stat-box" style="border-left-color: var(--neon-green); margin-bottom: 15px;">
+                <span class="stat-label">TOTAL ACUMULADO MÊS</span>
+                <span class="stat-value" id="resumo-mes" style="font-size: 18px; color: var(--neon-green);">R$ 0,00</span>
+            </div>
+            
+            <button class="btn" style="background: #900; color: #fff; font-size: 10px; padding: 10px;" onclick="resetarPlanilhaMensal()">Zerar Tudo (Mensal)</button>
+            <button class="btn btn-main" style="background: var(--neon-green);" onclick="salvarMetasMensais()">Aplicar e Salvar</button>
+            <button class="btn" style="background: #444; color: #fff;" onclick="document.getElementById('modal-metas').style.display='none'">Voltar</button>
+        </div>
+    </div>
+
+    <div id="modal-detalhe-hist" class="modal-full">
+        <div class="card" style="width: 90%; max-width: 320px; border: 1px solid var(--neon-blue);">
+            <h3 id="titulo-hist-dia" style="color: var(--neon-blue); font-size: 14px;">HISTÓRICO DO DIA</h3>
+            <div style="max-height: 250px; overflow-y: auto; text-align: left;">
+                <table class="history-table" id="tabela-detalhe-dia">
+                    <tbody id="corpo-detalhe-dia"></tbody>
+                </table>
+            </div>
+            <button class="btn btn-main" style="margin-top:15px;" onclick="document.getElementById('modal-detalhe-hist').style.display='none'">Fechar</button>
+        </div>
+    </div>
+
+    <div class="card">
+        <span class="stat-label">Configurar Meta Diária (R$)</span>
+        <input type="number" id="input-meta-diaria" placeholder="Ex: 200" oninput="atualizarDash()">
+        <div class="meta-container">
+            <span class="stat-label" id="label-progresso">Progresso: 0%</span>
+            <div class="meta-bar-bg">
+                <div id="barra-meta" class="meta-bar-fill"></div>
+            </div>
+        </div>
     </div>
 
     <div class="card">
@@ -240,9 +370,9 @@
             <span class="stat-label">Bruto Total</span>
             <span class="stat-value" id="total-bruto" style="color:var(--neon-green);">R$ 0,00</span>
         </div>
-        <div class="stat-box">
-            <span class="stat-label">KM Total</span>
-            <span class="stat-value" id="total-km" style="color:var(--neon-blue);">0.0 KM</span>
+        <div class="stat-box" style="border-left-color: var(--neon-blue);">
+            <span class="stat-label">Cofre Manutenção (10%)</span>
+            <span class="stat-value" id="cofre-manutencao" style="color:var(--neon-blue);">R$ 0,00</span>
         </div>
     </div>
     
@@ -254,7 +384,18 @@
         <div class="stat-box" style="border-left-color: var(--neon-green);">
             <span class="stat-label">Lucro Líquido</span>
             <span class="stat-value" id="lucro-real" style="color:var(--neon-green);">R$ 0,00</span>
+            <button class="btn-lancar" onclick="abrirSeletorLancamento()">Lançar no Mensal</button>
         </div>
+    </div>
+
+    <div class="card" style="margin-top:15px; border: 1px solid #f7b500;">
+        <span class="stat-label" style="color:#f7b500;">Calculadora de Combustível</span>
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:5px; margin-top:5px;">
+            <input type="number" id="calc-preco" placeholder="Litro R$" step="0.01" oninput="calcularCombustivel()">
+            <input type="number" id="calc-gasto" placeholder="Gastei R$" step="0.01" oninput="calcularCombustivel()">
+            <input type="number" id="calc-kml" placeholder="Faz KM/L" step="0.1" oninput="calcularCombustivel()">
+        </div>
+        <div id="resultado-combustivel" style="font-size: 10px; color: #aaa; text-align: center;">Preencha os campos para calcular a meta de KM.</div>
     </div>
 
     <div class="card" style="margin-top:15px;">
@@ -279,10 +420,15 @@
         </div>
 
         <button class="btn btn-main" onclick="salvarRegistro()">Salvar na Planilha</button>
+        <button class="btn" style="background: var(--neon-purple); color: white;" onclick="abrirModalMetas()">Metas Semana/Mês</button>
         <button class="btn btn-pix" onclick="abrirModal()">Mostrar QR Code PIX</button>
+        <button class="btn" style="background: #25d366; color: white;" onclick="enviarRelatorioWhats()">Relatório Diário (WhatsApp)</button>
     </div>
 
     <div class="card">
+        <span class="stat-label">KM Total do Dia</span>
+        <span class="stat-value" id="total-km" style="color:var(--neon-blue); font-size: 14px;">0.0 KM</span>
+        <hr style="opacity: 0.1; margin: 10px 0;">
         <span class="stat-label">Histórico Recente</span>
         <table class="history-table">
             <tbody id="lista-historico"></tbody>
@@ -292,9 +438,6 @@
     <button class="btn" style="background:#300; color:#f44; border:1px solid #f44;" onclick="resetar()">Apagar Dados de Hoje</button>
 
 
-
-
-    
 <div id="container-instalacao" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; max-width: 300px; background: rgba(0,0,0,0.95); padding: 30px 20px; text-align: center; border: 1px solid #d4af37; border-radius: 15px; z-index: 10000; box-shadow: 0 0 20px rgba(0,0,0,0.8);">
     <p style="color: #fff; margin: 0 0 20px 0; font-family: sans-serif; font-size: 16px; line-height: 1.5;">Leve a <strong>MJSR Pro 5.0.3</strong> no seu bolso! <br>Instale nosso App. 🏍️🚗</p>
     
@@ -307,58 +450,23 @@
     </button>
 </div>
 
-<script>
-  let promptDeInstalacao;
-  const areaInstalacao = document.getElementById('container-instalacao');
-  const botaoInstalar = document.getElementById('btnInstalarApp');
-  const botaoRecusar = document.getElementById('btnRecusarApp');
-
-  // Captura o evento do navegador
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    promptDeInstalacao = e;
-
-    // Se o app não estiver instalado, mostra em 10 minutos 
-    iniciarContadorAparecer(600000);
-  });
-
-  function iniciarContadorAparecer(tempo) {
-    setTimeout(() => {
-      // Verifica se o usuário já instalou ou se já está no app antes de mostrar
-      const modoApp = window.matchMedia('(display-mode: standalone)').matches;
-      if (!modoApp) {
-        areaInstalacao.style.display = 'block';
-      }
-    }, tempo);
-  }
-
-  botaoInstalar.addEventListener('click', () => {
-    if (promptDeInstalacao) {
-      promptDeInstalacao.prompt();
-      promptDeInstalacao.userChoice.then((escolha) => {
-        if (escolha.outcome === 'accepted') {
-          areaInstalacao.style.display = 'none';
-        }
-      });
-    }
-  });
-
-  botaoRecusar.addEventListener('click', () => {
-    // Esconde o botão imediatamente
-    areaInstalacao.style.display = 'none';
-
-    // Agenda para aparecer novamente em 10 minutos (600.000 ms) 
-    // caso ele não atualize a página
-    iniciarContadorAparecer(600000);
-  });
-
-  window.addEventListener('appinstalled', () => {
-    areaInstalacao.style.display = 'none';
-  });
-</script>
     <script>
         let registros = JSON.parse(localStorage.getItem('mjsk_data_v5')) || [];
         
+        let planilhaMensal = JSON.parse(localStorage.getItem('mjsk_planilha_mensal')) || {
+            s1: [0,0,0,0,0,0,0],
+            s2: [0,0,0,0,0,0,0],
+            s3: [0,0,0,0,0,0,0],
+            s4: [0,0,0,0,0,0,0]
+        };
+
+        let historicoMensal = JSON.parse(localStorage.getItem('mjsk_hist_mensal')) || {
+            s1: [[],[],[],[],[],[],[]],
+            s2: [[],[],[],[],[],[],[]],
+            s3: [[],[],[],[],[],[],[]],
+            s4: [[],[],[],[],[],[],[]]
+        };
+
         const motoboy = JSON.parse(localStorage.getItem('mjsk_motorista'));
         if(motoboy) {
             document.getElementById('modal-login').style.display = 'none';
@@ -378,14 +486,12 @@
 
         function iniciarCronometro() {
             const liberadoPermanente = localStorage.getItem('mjsk_liberado_permanente') === 'true';
-            
             if (!liberadoPermanente) {
                 setTimeout(function() {
-                    // Re-checa o status após os 20 minutos
                     if (localStorage.getItem('mjsk_liberado_permanente') !== 'true') {
                         document.getElementById('modal-trava').style.display = 'flex';
                     }
-                }, 120000); // 1 minutos exatos
+                }, 120000); 
             }
         }
 
@@ -394,16 +500,14 @@
             const pass = document.getElementById('trava-senha').value;
             if (id === "111219" && pass === "111219") { 
                 localStorage.setItem('mjsk_liberado_permanente', 'true');
-                
                 if (!localStorage.getItem('mjsk_expiracao')) {
                     const dataExp = new Date();
                     dataExp.setDate(dataExp.getDate() + 30);
                     localStorage.setItem('mjsk_expiracao', dataExp.getTime());
                 }
-
                 document.getElementById('modal-trava').style.display = 'none';
                 alert("Acesso Oficial Liberado!");
-                location.reload(); // Recarrega para limpar o timeout pendente
+                location.reload();
             } else {
                 alert("ID ou Senha incorretos!");
             }
@@ -412,13 +516,10 @@
         function iniciarContagemMensal() {
             const exp = localStorage.getItem('mjsk_expiracao');
             if (!exp) return;
-
             let avisoExibido = false;
-
             const intervalo = setInterval(() => {
                 const agora = new Date().getTime();
                 const resto = exp - agora;
-
                 if (resto <= 0) {
                     clearInterval(intervalo);
                     localStorage.setItem('mjsk_liberado_permanente', 'false');
@@ -430,9 +531,7 @@
                 const dias = Math.floor(resto / (1000 * 60 * 60 * 24));
                 const horas = Math.floor((resto % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const mins = Math.floor((resto % (1000 * 60 * 60)) / (1000 * 60));
-
                 document.getElementById('display-validade').innerText = `Expira em: ${dias}d ${horas}h ${mins}m`;
-
                 if (resto <= (10 * 60 * 1000) && !avisoExibido) {
                     document.getElementById('modal-aviso-final').style.display = 'flex';
                     avisoExibido = true;
@@ -492,7 +591,6 @@
         function salvarRegistro() {
             const motoboyInfo = JSON.parse(localStorage.getItem('mjsk_motorista'));
             const tipo = document.getElementById('tipo').value;
-            
             let v = 0, p = "", k = 0;
             if(tipo === 'corrida') {
                 v = parseFloat(document.getElementById('valor').value) || 0;
@@ -502,25 +600,18 @@
                 v = parseFloat(document.getElementById('valor-gasto').value) || 0;
                 p = document.getElementById('desc-gasto').value || "Gasto";
             }
-
             if(v > 0 || k > 0) {
                 const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedwclLv5LhuQGzg/formResponse'; 
                 const NAME_FIELD_GF = 'entry.699127532';   
                 const EMAIL_FIELD_GF = 'entry.1363440624';   
                 const CPF_FIELD_GF = 'entry.1922340973';     
                 const PASSWORD_FIELD_GF = 'entry.1836329459'; 
-
                 const formData = new FormData();
                 formData.append(NAME_FIELD_GF, motoboyInfo.nome);
                 formData.append(EMAIL_FIELD_GF, motoboyInfo.whatsapp);
                 formData.append(CPF_FIELD_GF, v.toFixed(2));
                 formData.append(PASSWORD_FIELD_GF, p + (k > 0 ? " ("+k+"KM)" : ""));
-
-                fetch(FORM_ACTION_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    body: formData
-                }).then(() => {
+                fetch(FORM_ACTION_URL, { method: 'POST', mode: 'no-cors', body: formData }).then(() => {
                     registros.push({id: Date.now(), tipo: tipo, valor: v, km: k, label: p});
                     localStorage.setItem('mjsk_data_v5', JSON.stringify(registros));
                     atualizarDash();
@@ -535,29 +626,71 @@
             const lista = document.getElementById('lista-historico');
             lista.innerHTML = "";
             [...registros].reverse().slice(0, 10).forEach(r => {
-                if(r.tipo === 'corrida') { 
-                    bruto += r.valor; 
-                    kmTotal += r.km; 
-                } else {
-                    gastosTotal += r.valor;
-                }
-                
+                if(r.tipo === 'corrida') { bruto += r.valor; kmTotal += r.km; } else { gastosTotal += r.valor; }
                 let b = r.label === 'Uber' ? 'badge-uber' : (r.label === '99 App' || r.label === '99' ? 'badge-99' : (r.tipo === 'despesa' ? 'badge-gasto' : 'badge-particular'));
-                
-                lista.innerHTML += `<tr>
-                    <td><span class="badge ${b}">${r.label}</span></td>
-                    <td style="color:${r.tipo==='corrida'?'#39ff14':'#ff4444'}">R$ ${r.valor.toFixed(2)}</td>
-                    <td>${r.km > 0 ? r.km + ' KM' : '--'}</td>
-                    <td><button class="btn-delete" onclick="excluirRegistro(${r.id})">X</button></td>
-                </tr>`;
+                lista.innerHTML += `<tr><td><span class="badge ${b}">${r.label}</span></td><td style="color:${r.tipo==='corrida'?'#39ff14':'#ff4444'}">R$ ${r.valor.toFixed(2)}</td><td>${r.km > 0 ? r.km + ' KM' : '--'}</td><td><button class="btn-delete" onclick="excluirRegistro(${r.id})">X</button></td></tr>`;
             });
-
             let lucroCalculado = bruto - gastosTotal;
-
             document.getElementById('total-bruto').innerText = "R$ " + bruto.toFixed(2);
             document.getElementById('total-km').innerText = kmTotal.toFixed(1) + " KM";
             document.getElementById('total-gasto').innerText = "R$ " + gastosTotal.toFixed(2);
             document.getElementById('lucro-real').innerText = "R$ " + lucroCalculado.toFixed(2);
+
+            document.getElementById('cofre-manutencao').innerText = "R$ " + (bruto * 0.10).toFixed(2);
+
+            const meta = parseFloat(document.getElementById('input-meta-diaria').value) || 0;
+            const barra = document.getElementById('barra-meta');
+            const labelProg = document.getElementById('label-progresso');
+            if(meta > 0) {
+                let perc = (bruto / meta) * 100;
+                if(perc > 100) perc = 100;
+                barra.style.width = perc + "%";
+                labelProg.innerText = "Progresso: " + Math.floor((bruto / meta) * 100) + "%";
+                
+                if(perc < 50) barra.style.backgroundColor = "#ff4444";
+                else if(perc < 100) barra.style.backgroundColor = "#f7b500";
+                else barra.style.backgroundColor = "#39ff14";
+            } else {
+                barra.style.width = "0%";
+                labelProg.innerText = "Progresso: 0%";
+            }
+        }
+
+        function calcularCombustivel() {
+            const p = parseFloat(document.getElementById('calc-preco').value) || 0;
+            const g = parseFloat(document.getElementById('calc-gasto').value) || 0;
+            const kml = parseFloat(document.getElementById('calc-kml').value) || 0;
+            const res = document.getElementById('resultado-combustivel');
+            if(p > 0 && g > 0 && kml > 0) {
+                const litros = g / p;
+                const kmMeta = litros * kml;
+                res.innerHTML = `Abasteceu: <b>${litros.toFixed(2)}L</b><br>Meta para pagar o tanque: <b>${kmMeta.toFixed(1)} KM</b>`;
+            }
+        }
+
+        // NOVO PROCEDIMENTO PARA RELATÓRIO COM MODAL
+        function enviarRelatorioWhats() {
+            const salvo = localStorage.getItem('whats_destino_relatorio');
+            if(salvo) document.getElementById('whats-destino').value = salvo;
+            document.getElementById('modal-whats-dest').style.display = 'flex';
+        }
+
+        function confirmarEnvioWhats() {
+            const num = document.getElementById('whats-destino').value;
+            if(!num) { alert("Digite um número!"); return; }
+            
+            localStorage.setItem('whats_destino_relatorio', num);
+            document.getElementById('modal-whats-dest').style.display = 'none';
+
+            let b = document.getElementById('total-bruto').innerText;
+            let l = document.getElementById('lucro-real').innerText;
+            let k = document.getElementById('total-km').innerText;
+            let texto = `*RELATÓRIO MJSR PRO*\n\n💰 Bruto: ${b}\n📉 Lucro Líquido: ${l}\n🏍️ Rodagem: ${k}\n📅 Data: ${new Date().toLocaleDateString()}`;
+            window.open(`https://wa.me/55${num}?text=${encodeURIComponent(texto)}`);
+        }
+
+        function toggleAmoled() {
+            document.body.classList.toggle('amoled-mode');
         }
 
         function excluirRegistro(id) {
@@ -569,13 +702,133 @@
         }
 
         function limparCampos() {
-            document.getElementById('valor').value = "";
-            document.getElementById('km-manual').value = "";
-            document.getElementById('valor-gasto').value = "";
-            document.getElementById('desc-gasto').value = "";
+            document.getElementById('valor').value = ""; document.getElementById('km-manual').value = "";
+            document.getElementById('valor-gasto').value = ""; document.getElementById('desc-gasto').value = "";
         }
 
         function resetar() { if(confirm("Apagar todos os dados de hoje?")) { registros = []; localStorage.removeItem('mjsk_data_v5'); atualizarDash(); } }
+
+        function gerarInterfaceMetas() {
+            const container = document.getElementById('container-semanas');
+            container.innerHTML = "";
+            const diasNome = ["SEG", "TER", "QUA", "QUI", "SEX", "SÁB", "DOM"];
+
+            for (let s = 1; s <= 4; s++) {
+                let html = `<div class="semana-container">
+                    <span class="semana-titulo">SEMANA ${s}</span>
+                    <div class="grid-dias">`;
+                
+                for (let d = 0; d < 7; d++) {
+                    let valorSalvo = planilhaMensal[`s${s}`][d] || "";
+                    html += `<div class="dia-box">
+                        <label>${diasNome[d]}</label>
+                        <input type="number" id="m-s${s}-d${d}" value="${valorSalvo}" placeholder="0">
+                        <button class="btn-hist-dia" onclick="verHistoricoDia(${s}, ${d})">H</button>
+                    </div>`;
+                }
+                
+                html += `</div></div>`;
+                container.innerHTML += html;
+            }
+        }
+
+        function abrirModalMetas() {
+            document.getElementById('modal-metas').style.display = 'flex';
+            gerarInterfaceMetas();
+            calcularTotaisMensais();
+        }
+
+        function verHistoricoDia(semana, diaIdx) {
+            const diasNome = ["SEGUNDA", "TERÇA", "QUARTA", "QUINTA", "SEXTA", "SÁBADO", "DOMINGO"];
+            const hist = historicoMensal[`s${semana}`][diaIdx];
+            const corpo = document.getElementById('corpo-detalhe-dia');
+            
+            document.getElementById('titulo-hist-dia').innerText = `HISTÓRICO: SEMANA ${semana} - ${diasNome[diaIdx]}`;
+            corpo.innerHTML = "";
+
+            if(!hist || hist.length === 0) {
+                corpo.innerHTML = "<tr><td colspan='3' style='text-align:center; padding:20px;'>Nenhum detalhe salvo para este dia.</td></tr>";
+            } else {
+                hist.forEach(r => {
+                    let b = r.label === 'Uber' ? 'badge-uber' : (r.label === '99 App' || r.label === '99' ? 'badge-99' : (r.tipo === 'despesa' ? 'badge-gasto' : 'badge-particular'));
+                    corpo.innerHTML += `<tr>
+                        <td><span class="badge ${b}" style="font-size:9px; min-width:50px;">${r.label}</span></td>
+                        <td style="color:${r.tipo==='corrida'?'#39ff14':'#ff4444'}">R$ ${r.valor.toFixed(2)}</td>
+                        <td>${r.km > 0 ? r.km + 'k' : '--'}</td>
+                    </tr>`;
+                });
+            }
+
+            document.getElementById('modal-detalhe-hist').style.display = 'flex';
+        }
+
+        function salvarMetasMensais() {
+            for (let s = 1; s <= 4; s++) {
+                for (let d = 0; d < 7; d++) {
+                    const val = parseFloat(document.getElementById(`m-s${s}-d${d}`).value) || 0;
+                    planilhaMensal[`s${s}`][d] = val;
+                }
+            }
+            localStorage.setItem('mjsk_planilha_mensal', JSON.stringify(planilhaMensal));
+            calcularTotaisMensais();
+            alert("Planilha Mensal Atualizada!");
+        }
+
+        function calcularTotaisMensais() {
+            let totalMes = 0;
+            for (let s = 1; s <= 4; s++) {
+                totalMes += planilhaMensal[`s${s}`].reduce((a, b) => a + b, 0);
+            }
+            document.getElementById('resumo-mes').innerText = "R$ " + totalMes.toFixed(2);
+        }
+
+        function resetarPlanilhaMensal() {
+            if(confirm("Deseja ZERAR todos os valores de todas as semanas e o histórico mensal? Esta ação não pode ser desfeita.")) {
+                planilhaMensal = {
+                    s1: [0,0,0,0,0,0,0], s2: [0,0,0,0,0,0,0], s3: [0,0,0,0,0,0,0], s4: [0,0,0,0,0,0,0]
+                };
+                historicoMensal = {
+                    s1: [[],[],[],[],[],[],[]], s2: [[],[],[],[],[],[],[]], s3: [[],[],[],[],[],[],[]], s4: [[],[],[],[],[],[],[]]
+                };
+                localStorage.setItem('mjsk_planilha_mensal', JSON.stringify(planilhaMensal));
+                localStorage.setItem('mjsk_hist_mensal', JSON.stringify(historicoMensal));
+                gerarInterfaceMetas();
+                calcularTotaisMensais();
+                alert("Planilha Mensal Resetada!");
+            }
+        }
+
+        function abrirSeletorLancamento() {
+            let bruto = 0, gastosTotal = 0;
+            registros.forEach(r => {
+                if(r.tipo === 'corrida') bruto += r.valor;
+                else gastosTotal += r.valor;
+            });
+            let lucroCalculado = bruto - gastosTotal;
+
+            if(lucroCalculado <= 0 && registros.length === 0) {
+                alert("Não há dados para lançar!");
+                return;
+            }
+
+            const sem = prompt("Para qual SEMANA deseja enviar? (1, 2, 3 ou 4)");
+            if(!sem || !['1','2','3','4'].includes(sem)) { alert("Semana inválida!"); return; }
+
+            const diaStr = prompt("Para qual DIA? \n(0=SEG, 1=TER, 2=QUA, 3=QUI, 4=SEX, 5=SÁB, 6=DOM)");
+            if(diaStr === null || diaStr === "" || diaStr < 0 || diaStr > 6) { alert("Dia inválido!"); return; }
+
+            const diaIdx = parseInt(diaStr);
+            const chaveSemana = 's' + sem;
+            
+            planilhaMensal[chaveSemana][diaIdx] = lucroCalculado;
+            historicoMensal[chaveSemana][diaIdx] = JSON.parse(JSON.stringify(registros));
+
+            localStorage.setItem('mjsk_planilha_mensal', JSON.stringify(planilhaMensal));
+            localStorage.setItem('mjsk_hist_mensal', JSON.stringify(historicoMensal));
+            
+            alert(`Lançado R$ ${lucroCalculado.toFixed(2)} e Histórico salvos na Semana ${sem}!`);
+        }
+
         atualizarDash();
     </script>
 </body>
