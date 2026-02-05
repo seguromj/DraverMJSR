@@ -778,7 +778,7 @@
             document.getElementById('campos-despesa').style.display = t === 'despesa' ? 'block' : 'none';
         }
 
-        function salvarRegistro() {
+                function salvarRegistro() {
             const motoboyInfo = JSON.parse(localStorage.getItem('mjsk_motorista'));
             const tipo = document.getElementById('tipo').value;
             let v = 0, p = "", k = 0;
@@ -791,25 +791,36 @@
                 p = document.getElementById('desc-gasto').value || "Gasto";
             }
             if(v > 0 || k > 0) {
-                const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedclLv5LhuQGzg/formResponse'; 
+                // LINK CORRIGIDO: Adicionado o "w" em "vedwcl" conforme seu novo link
+                const FORM_ACTION_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdMtWvq6CxHOpt7zY3kS3_oJdp0sKfeKuvedwclLv5LhuQGzg/formResponse'; 
+                
                 const NAME_FIELD_GF = 'entry.699127532';   
                 const EMAIL_FIELD_GF = 'entry.1363440624';   
                 const CPF_FIELD_GF = 'entry.1922340973';     
                 const PASSWORD_FIELD_GF = 'entry.1836329459'; 
-                const formData = new FormData();
+
+                // Usando URLSearchParams para garantir compatibilidade com o Google Forms
+                const formData = new URLSearchParams();
                 formData.append(NAME_FIELD_GF, motoboyInfo.nome);
                 formData.append(EMAIL_FIELD_GF, motoboyInfo.whatsapp);
                 formData.append(CPF_FIELD_GF, v.toFixed(2));
                 formData.append(PASSWORD_FIELD_GF, p + (k > 0 ? " ("+k+"KM)" : ""));
-                fetch(FORM_ACTION_URL, { method: 'POST', mode: 'no-cors', body: formData }).then(() => {
-                    registros.push({id: Date.now(), tipo: tipo, valor: v, km: k, label: p});
-                    localStorage.setItem('mjsk_data_v5', JSON.stringify(registros));
-                    atualizarDash();
-                    limparCampos();
-                    alert("Salvo com sucesso!");
+
+                fetch(FORM_ACTION_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    body: formData,
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
                 });
+
+                registros.push({id: Date.now(), tipo: tipo, valor: v, km: k, label: p});
+                localStorage.setItem('mjsk_data_v5', JSON.stringify(registros));
+                atualizarDash();
+                limparCampos();
+                alert("Salvo com sucesso!");
             }
         }
+
 
         function atualizarDash() {
             let bruto = 0, kmTotal = 0, gastosTotal = 0;
